@@ -1,38 +1,55 @@
 class Bind < Formula
   desc "Implementation of the DNS protocols"
   homepage "https://www.isc.org/downloads/bind/"
-  url "https://ftp.isc.org/isc/bind9/9.12.1-P2/bind-9.12.1-P2.tar.gz"
-  version "9.12.1-P2"
-  sha256 "0de7c3453461e2f0505ac634b984f8e7afa1952cf7fc972cbefbcc169edf2d29"
-  head "https://source.isc.org/git/bind9.git"
+
+  # BIND releases with even minor version numbers (9.14.x, 9.16.x, etc) are
+  # stable. Odd-numbered minor versions are for testing, and can be unstable
+  # or buggy. They are not suitable for general deployment. We have to use
+  # "version_scheme" because someone upgraded to 9.15.0, and required a
+  # downgrade.
+
+  url "https://ftp.isc.org/isc/bind/9.14.9/bind-9.14.9.tar.gz"
+  sha256 "29575ed58fa2324fb137936421f64f9aa048d67c78840dd18ade204ee180573c"
+  version_scheme 1
+  head "https://gitlab.isc.org/isc-projects/bind9.git"
 
   bottle do
-    sha256 "61bd2882271c8e1ec1f903f280daf7edccc2ff543f49fedf7837386b4f358fa5" => :high_sierra
-    sha256 "64db409d00c1ca0d88a90a5dde3a126a03900fef0f77925094b5c62884e234ed" => :sierra
-    sha256 "e552cbc531eb73b910c88c1e19485ad6a251594e317845a3d70f3f9da38e6b10" => :el_capitan
+    sha256 "406570ae0567dbdc6794f130f8f0e6b58909d453859bd5b6c9b9f6fba72c98a8" => :catalina
+    sha256 "d76267552143b88b7560f3d228f6c9a78eb2da6d56ad6911414d080cefb1b547" => :mojave
+    sha256 "7a24c570e43b1656accc7f749f98f59db18f8096c408ea89361e1231091910b4" => :high_sierra
   end
 
-  depends_on "openssl"
-  depends_on "json-c" => :optional
+  depends_on "json-c"
+  depends_on "openssl@1.1"
+  depends_on "python"
+
+  resource "ply" do
+    url "https://files.pythonhosted.org/packages/e5/69/882ee5c9d017149285cab114ebeab373308ef0f874fcdac9beb90e0ac4da/ply-3.11.tar.gz"
+    sha256 "00c7c1aaa88358b9c765b6d3000c6eec0ba42abca5351b095321aef446081da3"
+  end
 
   def install
+    xy = Language::Python.major_minor_version "python3"
+    vendor_site_packages = libexec/"vendor/lib/python#{xy}/site-packages"
+    ENV.prepend_create_path "PYTHONPATH", vendor_site_packages
+    resources.each do |r|
+      r.stage do
+        system "python3", *Language::Python.setup_install_args(libexec/"vendor")
+      end
+    end
+
     # Fix "configure: error: xml2-config returns badness"
     if MacOS.version == :sierra || MacOS.version == :el_capitan
       ENV["SDKROOT"] = MacOS.sdk_path
     end
 
-    # enable DNSSEC signature chasing in dig
-    ENV["STD_CDEFINES"] = "-DDIG_SIGCHASE=1"
-
-    json = build.with?("json-c") ? "yes" : "no"
     system "./configure", "--prefix=#{prefix}",
-                          "--enable-threads",
-                          "--enable-ipv6",
-                          "--with-openssl=#{Formula["openssl"].opt_prefix}",
-                          "--with-libjson=#{json}"
+                          "--with-openssl=#{Formula["openssl@1.1"].opt_prefix}",
+                          "--with-libjson=#{Formula["json-c"].opt_prefix}",
+                          "--with-python=#{Formula["python"].opt_bin}/python3",
+                          "--with-python-install-dir=#{vendor_site_packages}",
+                          "--without-lmdb"
 
-    # From the bind9 README: "Do not use a parallel "make"."
-    ENV.deparallelize
     system "make"
     system "make", "install"
 
@@ -110,7 +127,7 @@ class Bind < Formula
                     print-time yes;
             };
     };
-    EOS
+  EOS
   end
 
   def localhost_zone; <<~EOS
@@ -125,7 +142,7 @@ class Bind < Formula
 
                 1D IN NS    @
                 1D IN A        127.0.0.1
-    EOS
+  EOS
   end
 
   def named_local; <<~EOS
@@ -139,7 +156,7 @@ class Bind < Formula
                   IN      NS      localhost.
 
     1       IN      PTR     localhost.
-    EOS
+  EOS
   end
 
   plist_options :startup => true
@@ -166,7 +183,7 @@ class Bind < Formula
       <false/>
     </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

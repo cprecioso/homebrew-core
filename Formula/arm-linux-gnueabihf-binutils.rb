@@ -1,17 +1,22 @@
 class ArmLinuxGnueabihfBinutils < Formula
   desc "FSF/GNU binutils for cross-compiling to arm-linux"
   homepage "https://www.gnu.org/software/binutils/binutils.html"
-  url "https://ftp.gnu.org/gnu/binutils/binutils-2.30.tar.gz"
-  mirror "https://ftpmirror.gnu.org/binutils/binutils-2.30.tar.gz"
-  sha256 "8c3850195d1c093d290a716e20ebcaa72eda32abf5e3d8611154b39cff79e9ea"
+  url "https://ftp.gnu.org/gnu/binutils/binutils-2.33.1.tar.gz"
+  mirror "https://ftpmirror.gnu.org/binutils/binutils-2.33.1.tar.gz"
+  sha256 "98aba5f673280451a09df3a8d8eddb3aa0c505ac183f1e2f9d00c67aa04c6f7d"
 
   bottle do
-    sha256 "b15ac1832f141514cde7bb0ed3ed639c7487611876589cdeb10da1378fc6e06e" => :high_sierra
-    sha256 "b1c1b5d340bab02647ac1e524b9962debca5c3d6641283e93a99049310cf53c5" => :sierra
-    sha256 "dccb4fb54d875c5ce0b582702a884f5a0f67a14a1c7c3749a519fffa54c1f6d3" => :el_capitan
+    sha256 "14f878d52bbfda63e4ad9b44134b894158f6a3ec88f4c030df82611ac48deb3d" => :catalina
+    sha256 "aa128109b9f8b978f645fe87cc65b1e168a6360aeec53bdd158755044285f150" => :mojave
+    sha256 "1c5175cd3d2c944a752a7a6322fa545971a6211fb30cf358f8c49c02155bc923" => :high_sierra
   end
 
   def install
+    ENV.cxx11
+
+    # Avoid build failure: https://sourceware.org/bugzilla/show_bug.cgi?id=23424
+    ENV.append "CXXFLAGS", "-Wno-c++11-narrowing"
+
     system "./configure", "--disable-debug",
                           "--disable-dependency-tracking",
                           "--enable-deterministic-archives",

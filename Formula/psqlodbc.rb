@@ -1,42 +1,31 @@
 class Psqlodbc < Formula
   desc "Official PostgreSQL ODBC driver"
   homepage "https://odbc.postgresql.org"
-  url "https://ftp.postgresql.org/pub/odbc/versions/src/psqlodbc-10.03.0000.tar.gz"
-  sha256 "0d2ff2d10d9347ef6ce83c7ca24f4cb20b4044eeef9638c8ae3bc8107e9e92f8"
+  url "https://ftp.postgresql.org/pub/odbc/versions/src/psqlodbc-12.00.0000.tar.gz"
+  sha256 "cf4a763737892e85f403ba581ba0d369666b9641c15e35b345552720e8ce24eb"
 
   bottle do
     cellar :any
-    sha256 "e24fc6b6c219c8ee08a1448fe8fb8fe7e70cadae99d197c21838515dc96751de" => :high_sierra
-    sha256 "420b5d885afc1839b1ec764e07d28803cfe88680c233dd7833d22cd382df8c40" => :sierra
-    sha256 "846df80d05b7692bb2cf7d3fd13b9be0e720e02dabfd32c14a560385e0592895" => :el_capitan
+    sha256 "0654b174ebc79e5dba8e4cc01dbf23dd666b267ab51a13476f98f3576b844f01" => :catalina
+    sha256 "73e790b93d40879e9011e3f36ebd26994175650736524c51c1e45b1fbcf6e4d9" => :mojave
+    sha256 "9b7c956c86df2de006e1bc44976dbb11bdaf16f8ee7c7c9d9d1ca6ffc3715d2b" => :high_sierra
   end
 
   head do
     url "https://git.postgresql.org/git/psqlodbc.git"
-    depends_on "automake" => :build
     depends_on "autoconf" => :build
+    depends_on "automake" => :build
     depends_on "libtool" => :build
   end
 
-  depends_on "openssl"
+  depends_on "openssl@1.1"
   depends_on "postgresql"
-  depends_on "unixodbc" => :recommended
-  depends_on "libiodbc" => :optional
+  depends_on "unixodbc"
 
   def install
-    if build.with?("libiodbc") && build.with?("unixodbc")
-      odie "psqlodbc: --without-unixodbc must be specified when using --with-libiodbc"
-    end
-
-    args = %W[
-      --prefix=#{prefix}
-    ]
-
-    args << "--with-iodbc=#{Formula["libiodbc"].opt_prefix}" if build.with?("libiodbc")
-    args << "--with-unixodbc=#{Formula["unixodbc"].opt_prefix}" if build.with?("unixodbc")
-
     system "./bootstrap" if build.head?
-    system "./configure", *args
+    system "./configure", "--prefix=#{prefix}",
+                          "--with-unixodbc=#{Formula["unixodbc"].opt_prefix}"
     system "make"
     system "make", "install"
   end

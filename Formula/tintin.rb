@@ -1,15 +1,14 @@
 class Tintin < Formula
   desc "MUD client"
   homepage "https://tintin.sourceforge.io/"
-  url "https://downloads.sourceforge.net/project/tintin/TinTin%2B%2B%20Source%20Code/2.01.4/tintin-2.01.4.tar.gz"
-  sha256 "dd22afbff45a93ec399065bae385489131af7e1b6ae8abb28f80d6a03b82ebbc"
-  revision 2
+  url "https://downloads.sourceforge.net/tintin/tintin-2.01.92.tar.gz"
+  sha256 "3386d49810f2dbc162f890f26bb81e3807af34753d7a4ead64cc40e845cba845"
 
   bottle do
     cellar :any
-    sha256 "552223fd7efc3d68a99a1d49135a6537091f0d893e67f08eaf876e2385a0460d" => :high_sierra
-    sha256 "58dbcc694fb3b80f10951d06f24fb4fd0e94eac1a3dc84017cd82e38610ff6a7" => :sierra
-    sha256 "bd1fe99b7c2a458acd81a5a567ba57c664c99f9f5f73adb8845bae7d7363a151" => :el_capitan
+    sha256 "788bde2c6f1b9af071b9fd34408d2604772d94f8ac1682103a448dae8f84cacf" => :catalina
+    sha256 "d8b6468b14df8cd486546f27702478c574d3f25fbbdd8f2fe60debbb49bb5ccb" => :mojave
+    sha256 "8ee71f28fee2146074728f5899b1e2c8f78e57404f1a19cffd236d92467ed44f" => :high_sierra
   end
 
   depends_on "gnutls"
@@ -29,10 +28,6 @@ class Tintin < Formula
   end
 
   test do
-    require "pty"
-    (testpath/"input").write("#end {bye}\n")
-    PTY.spawn(bin/"tt++", "-G", "input") do |r, _w, _pid|
-      assert_match "Goodbye", r.read
-    end
+    shell_output("#{bin}/tt++ -e \"#nop; #info system; #end;\"")
   end
 end

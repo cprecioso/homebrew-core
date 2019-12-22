@@ -1,15 +1,21 @@
 class BashCompletionAT2 < Formula
   desc "Programmable completion for Bash 4.1+"
   homepage "https://github.com/scop/bash-completion"
-  url "https://github.com/scop/bash-completion/releases/download/2.8/bash-completion-2.8.tar.xz"
-  sha256 "c01f5570f5698a0dda8dc9cfb2a83744daa1ec54758373a6e349bd903375f54d"
-  head "https://github.com/scop/bash-completion.git"
+  url "https://github.com/scop/bash-completion/releases/download/2.10/bash-completion-2.10.tar.xz"
+  sha256 "123c17998e34b937ce57bb1b111cd817bc369309e9a8047c0bcf06ead4a3ec92"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "08ccf4c84786d7881c5d58fd9122b62e828859c57b28652df923a105f9a94b8b" => :high_sierra
-    sha256 "08ccf4c84786d7881c5d58fd9122b62e828859c57b28652df923a105f9a94b8b" => :sierra
-    sha256 "08ccf4c84786d7881c5d58fd9122b62e828859c57b28652df923a105f9a94b8b" => :el_capitan
+    sha256 "457ae745fa3c9ad6cda7f497cd312bcc70f469a723e1a9b0d59af87234a9b3d3" => :catalina
+    sha256 "457ae745fa3c9ad6cda7f497cd312bcc70f469a723e1a9b0d59af87234a9b3d3" => :mojave
+    sha256 "457ae745fa3c9ad6cda7f497cd312bcc70f469a723e1a9b0d59af87234a9b3d3" => :high_sierra
+  end
+
+  head do
+    url "https://github.com/scop/bash-completion.git"
+
+    depends_on "autoconf" => :build
+    depends_on "automake" => :build
   end
 
   depends_on "bash"
@@ -19,17 +25,19 @@ class BashCompletionAT2 < Formula
   def install
     inreplace "bash_completion", "readlink -f", "readlink"
 
-    system "./configure", "--prefix=#{prefix}", "--sysconfdir=#{etc}"
+    system "autoreconf", "-i" if build.head?
+    system "./configure", "--prefix=#{prefix}"
     ENV.deparallelize
     system "make", "install"
   end
 
   def caveats; <<~EOS
     Add the following to your ~/.bash_profile:
-      if [ -f #{HOMEBREW_PREFIX}/share/bash-completion/bash_completion ]; then
-        . #{HOMEBREW_PREFIX}/share/bash-completion/bash_completion
-      fi
-    EOS
+      [[ -r "#{etc}/profile.d/bash_completion.sh" ]] && . "#{etc}/profile.d/bash_completion.sh"
+
+    If you'd like to use existing homebrew v1 completions, add the following before the previous line:
+      export BASH_COMPLETION_COMPAT_DIR="#{etc}/bash_completion.d"
+  EOS
   end
 
   test do

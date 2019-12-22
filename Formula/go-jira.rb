@@ -1,27 +1,22 @@
 class GoJira < Formula
   desc "Simple jira command-line client in Go"
-  homepage "https://github.com/Netflix-Skunkworks/go-jira"
-  url "https://github.com/Netflix-Skunkworks/go-jira/archive/v1.0.17.tar.gz"
-  sha256 "c1127af5ff8d19ab3f6b5bf424f262495143448608ec59beadcefb5e645feddb"
+  homepage "https://github.com/go-jira/jira"
+  url "https://github.com/go-jira/jira/archive/v1.0.22.tar.gz"
+  sha256 "428099801521debb46f30ed602481e92c4560e2251542c1f1a2dc4a818ff9765"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "998f112c60677a6148d494a228cb0c7ce52b1305ca592f390303aa4bbeafa1c3" => :high_sierra
-    sha256 "f69c2762ed8579b1e90039f87a4729e08713c44b3769a10a4d05ea39534532d6" => :sierra
-    sha256 "feac86e0055b80f2553211f21db03a8e56eb6e1f7e229afff6aa395c576a3aff" => :el_capitan
+    rebuild 1
+    sha256 "38d03e0f3994736458739e37eb82ead82320ac58d2665b7a0d506b268f2ea8b5" => :catalina
+    sha256 "49d153052dd5e07bbbdf2adba6b52039fd191cbdf5bf2aa3c2b62c4f1bbd23c8" => :mojave
+    sha256 "331cd58a151aa348e63093b362e9a036b5348770fa91ab6d2672a5113c33b7d0" => :high_sierra
   end
 
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
-    dir = buildpath/"src/gopkg.in/Netflix-Skunkworks/go-jira.v1"
-    dir.install buildpath.children
-
-    cd dir do
-      system "go", "build", "-o", bin/"jira", "-ldflags", "-w -s", "cmd/jira/main.go"
-      prefix.install_metafiles
-    end
+    system "go", "build", "-ldflags", "-s -w", "-trimpath", "-o", bin/"jira", "cmd/jira/main.go"
+    prefix.install_metafiles
   end
 
   test do
@@ -29,7 +24,7 @@ class GoJira < Formula
     template_dir = testpath/".jira.d/templates/"
 
     files = Dir.entries(template_dir)
-    # not an exhaustive list, see https://github.com/Netflix-Skunkworks/go-jira/blob/4d74554300fa7e5e660cc935a92e89f8b71012ea/jiracli/templates.go#L239
+    # not an exhaustive list, see https://github.com/go-jira/jira/blob/4d74554300fa7e5e660cc935a92e89f8b71012ea/jiracli/templates.go#L239
     expected_templates = %w[comment components create edit issuetypes list view worklog debug]
 
     assert_equal([], expected_templates - files)

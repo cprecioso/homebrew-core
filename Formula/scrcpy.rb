@@ -1,36 +1,35 @@
 class Scrcpy < Formula
   desc "Display and control your Android device"
   homepage "https://github.com/Genymobile/scrcpy"
-  url "https://github.com/Genymobile/scrcpy/archive/v1.1.tar.gz"
-  sha256 "1b56caa4aad5add2c49ea436e9f26282b55a413003d0d73b029a1fbf48da0a1c"
-  revision 1
+  url "https://github.com/Genymobile/scrcpy/archive/v1.12.tar.gz"
+  sha256 "95aab189448582870d8e7d8a27a2c9b40838bd45ee2737be0f255f7a11647870"
 
   bottle do
-    sha256 "b46f843a8569c69e1b99301e0a69335f443c870df3eead3ad78fa3c141b93a21" => :high_sierra
-    sha256 "4bdcb5d23d7b1852aec8e181001af014fd255be58176e58a9b5eb9bf2e68733f" => :sierra
-    sha256 "c33b30a90c2f801987349a3f958bb6b1e35e44b4d3fe7ecbd9016eb3c32f0020" => :el_capitan
+    sha256 "adb39097a9e57ba3908902f9444763c342f12ea206ea7f459588bb13c7f1c2c2" => :catalina
+    sha256 "3c010284acd2f463819c91dc06a87a3e522b60135cdda3cd0ebb2eeb43319403" => :mojave
+    sha256 "4f94e31206c84e367a3890026bcc7c02feb0e7a6e081032cfaea7ebc509e514b" => :high_sierra
   end
 
   depends_on "meson" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-
   depends_on "ffmpeg"
   depends_on "sdl2"
 
   resource "prebuilt-server" do
-    url "https://github.com/Genymobile/scrcpy/releases/download/v1.1/scrcpy-server-v1.1.jar"
-    sha256 "14826512bf38447ec94adf3b531676ce038d19e7e06757fb4e537882b17e77b3"
+    url "https://github.com/Genymobile/scrcpy/releases/download/v1.12/scrcpy-server-v1.12"
+    sha256 "b6595262c230e9773fdb817257abcc8c6e6e00f15b1c32b6a850ccfd8176dc10"
   end
 
   def install
     r = resource("prebuilt-server")
-    r.verify_download_integrity(r.fetch)
+    r.fetch
     cp r.cached_download, buildpath/"prebuilt-server.jar"
 
     mkdir "build" do
       system "meson", "--prefix=#{prefix}",
-                      "-Dprebuilt_server=#{buildpath/"prebuilt-server.jar"}",
+                      "--buildtype=release",
+                      "-Dprebuilt_server=#{buildpath}/prebuilt-server.jar",
                       ".."
 
       system "ninja", "install"
@@ -42,7 +41,7 @@ class Scrcpy < Formula
 
     You can install adb from Homebrew Cask:
       brew cask install android-platform-tools
-    EOS
+  EOS
   end
 
   test do

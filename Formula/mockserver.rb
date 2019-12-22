@@ -1,12 +1,12 @@
 class Mockserver < Formula
   desc "Mock HTTP server and proxy"
   homepage "https://www.mock-server.com/"
-  url "https://oss.sonatype.org/content/repositories/releases/org/mock-server/mockserver-netty/5.3.0/mockserver-netty-5.3.0-brew-tar.tar"
-  sha256 "323fe846d9a6e47d508d26a428b5d6748572b814569aecdd65916dc7279f1308"
+  url "https://oss.sonatype.org/content/repositories/releases/org/mock-server/mockserver-netty/5.8.0/mockserver-netty-5.8.0-brew-tar.tar"
+  sha256 "5416dbdd79ffff0528c9f502e53107910bdbb70dc8489c76e78c6c5841539718"
 
   bottle :unneeded
 
-  depends_on :java => "1.6+"
+  depends_on :java => "1.8+"
 
   def install
     libexec.install Dir["*"]

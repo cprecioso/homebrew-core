@@ -1,23 +1,24 @@
 class Ncmpc < Formula
   desc "Curses Music Player Daemon (MPD) client"
   homepage "https://www.musicpd.org/clients/ncmpc/"
-  url "https://www.musicpd.org/download/ncmpc/0/ncmpc-0.30.tar.xz"
-  sha256 "e3fe0cb58b8a77f63fb1645c2f974b334f1614efdc834ec698ee7d861f1b12a3"
-  revision 1
+  url "https://www.musicpd.org/download/ncmpc/0/ncmpc-0.36.tar.xz"
+  sha256 "4632873dfc8efe61e501dc9184a5b921b482be2ddbedd3d23d05241d477a3e2c"
 
   bottle do
-    sha256 "c9ed9273d7098162bb04e79d9d21b1fb35fdad6aadc2904c326f8aafb840caf4" => :high_sierra
-    sha256 "b2782d26fd0dc87901d2d0f833a44bee7e702745e9a6b3601284411412b926dd" => :sierra
-    sha256 "66ea4904dfb7452663a9fd694a6188ac278eb4d45e40e9af72aeb15209fe3f1d" => :el_capitan
+    cellar :any
+    sha256 "eb296eef08ee1bd8be2b0037f39479123301cb6454fed7f32e63f37e32da9b4f" => :catalina
+    sha256 "2e240f225487cfd1b07b0bd196c05d152fb421a5dcd8ee9b6686f2f3dbeb1948" => :mojave
+    sha256 "a16f92c342b7189b5c6b934a532a7fae6e48f4cd7486cc14b868a3a58434c191" => :high_sierra
   end
 
+  depends_on "boost" => :build
   depends_on "meson" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "gcc" if DevelopmentTools.clang_build_version <= 800
   depends_on "gettext"
-  depends_on "glib"
   depends_on "libmpdclient"
+  depends_on "pcre"
 
   fails_with :clang do
     build 800
@@ -25,21 +26,8 @@ class Ncmpc < Formula
   end
 
   def install
-    sdk = MacOS::CLT.installed? ? "" : MacOS.sdk_path
-
-    # Fix undefined symbols _COLORS, _COLS, etc.
-    # Reported 21 Sep 2017 https://github.com/MusicPlayerDaemon/ncmpc/issues/6
-    (buildpath/"ncurses.pc").write <<~EOS
-      Name: ncurses
-      Description: ncurses
-      Version: 5.4
-      Libs: -L/usr/lib -lncurses
-      Cflags: -I#{sdk}/usr/include
-    EOS
-    ENV.prepend_path "PKG_CONFIG_PATH", buildpath
-
     mkdir "build" do
-      system "meson", "--prefix=#{prefix}", ".."
+      system "meson", "--prefix=#{prefix}", "-Dcolors=false", "-Dnls=disabled", ".."
       system "ninja", "install"
     end
   end

@@ -1,15 +1,15 @@
 class Wxmaxima < Formula
   desc "Cross platform GUI for Maxima"
-  homepage "https://andrejv.github.io/wxmaxima"
-  url "https://github.com/andrejv/wxmaxima/archive/Version-18.02.0.tar.gz"
-  sha256 "727303bd26bdc7eb72dea0b0fcfa60c0180993430d55a4e3700c92eb5e16790e"
-  head "https://github.com/andrejv/wxmaxima.git"
+  homepage "https://wxmaxima-developers.github.io/wxmaxima/"
+  url "https://github.com/wxMaxima-developers/wxmaxima/archive/Version-19.12.1.tar.gz"
+  sha256 "ce37361141821ce58cd3be5c316c40a8f19b741eb20c936d86152bfae1f101f5"
+  head "https://github.com/wxMaxima-developers/wxmaxima.git"
 
   bottle do
     cellar :any
-    sha256 "1cab5b45e11c9a53b04e88e49226d2e9eb0965f1367c86ad30915694cea1eba6" => :high_sierra
-    sha256 "b44af0b7c1a8aac7d5a5270eaafa9d21c1d3e84940784e6fe343860d9b1eefbd" => :sierra
-    sha256 "f742fa1359c964822066034bf08d7a454e5d73546e2138f63deb4de79ae5c9d6" => :el_capitan
+    sha256 "713e5a4c38c8df73e4494356c9a7fde6f1bedfcaad3029ea729af3387ff43c2e" => :catalina
+    sha256 "9a4c9089f8a13451b76a9e310ddc486e9fe75bbb699b79b7ec11ddc30979fbed" => :mojave
+    sha256 "6bc73da6650a0806a29b93136957a0d1814aaada9a9d1f2807a9fc81520f9134" => :high_sierra
   end
 
   depends_on "cmake" => :build
@@ -20,6 +20,8 @@ class Wxmaxima < Formula
     system "cmake", ".", *std_cmake_args
     system "make", "install"
     prefix.install "wxMaxima.app"
+
+    bash_completion.install "data/wxmaxima"
   end
 
   def caveats; <<~EOS
@@ -30,10 +32,10 @@ class Wxmaxima < Formula
     in ~/.maxima/maxima-init.mac:
       gnuplot_command:"#{HOMEBREW_PREFIX}/bin/gnuplot"$
       draw_command:"#{HOMEBREW_PREFIX}/bin/gnuplot"$
-    EOS
+  EOS
   end
 
   test do
-    assert_match "algebra", shell_output("#{bin}/wxmaxima --help 2>&1", 255)
+    assert_match "algebra", shell_output("#{bin}/wxmaxima --help 2>&1")
   end
 end

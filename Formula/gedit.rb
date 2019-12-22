@@ -1,48 +1,49 @@
 class Gedit < Formula
   desc "The GNOME text editor"
   homepage "https://wiki.gnome.org/Apps/Gedit"
-  url "https://download.gnome.org/sources/gedit/3.28/gedit-3.28.1.tar.xz"
-  sha256 "f174be0958ce63771fef9a81d06da6769358dab8705364a6abb5c7d10ec8211d"
+  url "https://download.gnome.org/sources/gedit/3.34/gedit-3.34.1.tar.xz"
+  sha256 "ebf9ef4e19831699d26bb93ce029edfed65416d7c11147835fc370d73428d5c6"
 
   bottle do
-    sha256 "d13c0a492327dcb25d501310572e496594cfbd1e0bd204a806b829a22ff689a5" => :high_sierra
-    sha256 "98f28fd13d07188e0c81d839797cef91ac4d629feb75442afc8671a7c8464a00" => :sierra
-    sha256 "98abdcb202c3d289de4a16d7a55b2a4cf1cf8be55a3253718524e2aec78cb6c1" => :el_capitan
+    sha256 "be10a5f9c19532b6989c3c7855c450d9ce64527ea6e42b01d22928e09d4f47fa" => :catalina
+    sha256 "fef39bc1e61bfd3d1bb26b66fafdece9be765e87ad9e8a83b59a60c661e69d6a" => :mojave
+    sha256 "e2e0f82401cea741c126b60862a7e7066578019c06eb28f319c17361dda99c5b" => :high_sierra
   end
 
+  depends_on "itstool" => :build
+  depends_on "meson" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
   depends_on "vala" => :build
-  depends_on "intltool" => :build
-  depends_on "itstool" => :build
+  depends_on "adwaita-icon-theme"
   depends_on "atk"
   depends_on "cairo"
   depends_on "gdk-pixbuf"
   depends_on "gettext"
   depends_on "glib"
-  depends_on "pango"
-  depends_on "gtk+3"
-  depends_on "gtk-mac-integration"
   depends_on "gobject-introspection"
-  depends_on "gspell"
-  depends_on "iso-codes"
-  depends_on "libxml2"
-  depends_on "libpeas"
-  depends_on "gtksourceview3"
   depends_on "gsettings-desktop-schemas"
-  depends_on "adwaita-icon-theme"
+  depends_on "gspell"
+  depends_on "gtk+3"
+  depends_on "gtksourceview4"
+  depends_on "libpeas"
+  depends_on "libsoup"
+  depends_on "libxml2"
+  depends_on "pango"
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-silent-rules",
-                          "--prefix=#{prefix}",
-                          "--disable-updater",
-                          "--disable-schemas-compile",
-                          "--disable-python"
-    system "make", "install"
+    ENV["DESTDIR"] = "/"
+
+    mkdir "build" do
+      system "meson", "--prefix=#{prefix}", ".."
+      system "ninja", "-v"
+      system "ninja", "install", "-v"
+    end
   end
 
   def post_install
     system "#{Formula["glib"].opt_bin}/glib-compile-schemas", "#{HOMEBREW_PREFIX}/share/glib-2.0/schemas"
+    system "#{Formula["gtk+3"].opt_bin}/gtk3-update-icon-cache", "-qtf", "#{HOMEBREW_PREFIX}/share/icons/hicolor"
   end
 
   test do
@@ -67,7 +68,8 @@ class Gedit < Formula
     glib = Formula["glib"]
     gobject_introspection = Formula["gobject-introspection"]
     gtkx3 = Formula["gtk+3"]
-    gtksourceview3 = Formula["gtksourceview3"]
+    gtksourceview4 = Formula["gtksourceview4"]
+    harfbuzz = Formula["harfbuzz"]
     libepoxy = Formula["libepoxy"]
     libffi = Formula["libffi"]
     libpeas = Formula["libpeas"]
@@ -85,8 +87,9 @@ class Gedit < Formula
       -I#{glib.opt_include}/glib-2.0
       -I#{glib.opt_lib}/glib-2.0/include
       -I#{gobject_introspection.opt_include}/gobject-introspection-1.0
-      -I#{gtksourceview3.opt_include}/gtksourceview-3.0
+      -I#{gtksourceview4.opt_include}/gtksourceview-4
       -I#{gtkx3.opt_include}/gtk-3.0
+      -I#{harfbuzz.opt_include}/harfbuzz
       -I#{include}/gedit-3.14
       -I#{libepoxy.opt_include}
       -I#{libffi.opt_lib}/libffi-3.0.13/include
@@ -102,7 +105,7 @@ class Gedit < Formula
       -L#{gettext.opt_lib}
       -L#{glib.opt_lib}
       -L#{gobject_introspection.opt_lib}
-      -L#{gtksourceview3.opt_lib}
+      -L#{gtksourceview4.opt_lib}
       -L#{gtkx3.opt_lib}
       -L#{libpeas.opt_lib}
       -L#{lib}
@@ -112,14 +115,14 @@ class Gedit < Formula
       -lcairo-gobject
       -lgdk-3
       -lgdk_pixbuf-2.0
-      -lgedit
+      -lgedit-3.14
       -lgio-2.0
       -lgirepository-1.0
       -lglib-2.0
       -lgmodule-2.0
       -lgobject-2.0
       -lgtk-3
-      -lgtksourceview-3.0
+      -lgtksourceview-4.0
       -lintl
       -lpango-1.0
       -lpangocairo-1.0

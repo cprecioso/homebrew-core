@@ -2,21 +2,21 @@ class FaasCli < Formula
   desc "CLI for templating and/or deploying FaaS functions"
   homepage "https://docs.get-faas.com/"
   url "https://github.com/openfaas/faas-cli.git",
-      :tag => "0.6.9",
-      :revision => "6532f3c66967b3a872208a29b1b60a873b7d2490"
+      :tag      => "0.11.0",
+      :revision => "0ab4012784510381e2b90c031ede3d77197b10b1"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "e13f5e9e3bd01acac523df0c9d5a5a4f7214d71eb7c1601c751e50c0f7a378d0" => :high_sierra
-    sha256 "028a4487eb2ff76b4a78c80cba6f9acc40aef9320bb3cd78f8548fc677d76676" => :sierra
-    sha256 "b50ddd5925bd1d775d9efdfd9ab7be6d5ae4ebd84701548e8859330a9a8a39e9" => :el_capitan
+    sha256 "1927818a15ef6869649aee24a1a928e365609f252fc3af5384f588573764e54c" => :catalina
+    sha256 "8c071aa89602eb94af3bbe512f9f800d0903ce5aca590d77deb1b610a6c33206" => :mojave
+    sha256 "a436c5c1293e8b0808b0b4a2a1a5866f93158e689ddacaaf95e62ea115de59ec" => :high_sierra
   end
 
   depends_on "go" => :build
 
   def install
     ENV["XC_OS"] = "darwin"
-    ENV["XC_ARCH"] = MacOS.prefer_64_bit? ? "amd64" : "386"
+    ENV["XC_ARCH"] = "amd64"
     ENV["GOPATH"] = buildpath
     (buildpath/"src/github.com/openfaas/faas-cli").install buildpath.children
     cd "src/github.com/openfaas/faas-cli" do
@@ -26,7 +26,6 @@ class FaasCli < Formula
              "-s -w -X #{project}/version.GitCommit=#{commit} -X #{project}/version.Version=#{version}", "-a",
              "-installsuffix", "cgo", "-o", bin/"faas-cli"
       bin.install_symlink "faas-cli" => "faas"
-      pkgshare.install "template"
       prefix.install_metafiles
     end
   end
@@ -51,7 +50,7 @@ class FaasCli < Formula
 
     (testpath/"test.yml").write <<~EOS
       provider:
-        name: faas
+        name: openfaas
         gateway: http://localhost:#{port}
         network: "func_functions"
 
@@ -62,22 +61,7 @@ class FaasCli < Formula
           image: dummy_image
     EOS
 
-    expected = <<~EOS
-      Deploying: dummy_function.
-      Function dummy_function already exists, attempting rolling-update.
-
-      Deployed. 200 OK.
-      URL: http://localhost:#{port}/function/dummy_function
-    EOS
-
     begin
-      cp_r pkgshare/"template", testpath
-
-      output = shell_output("#{bin}/faas-cli deploy -yaml test.yml")
-      assert_equal expected, output.chomp
-
-      rm_rf "template"
-
       output = shell_output("#{bin}/faas-cli deploy -yaml test.yml 2>&1", 1)
       assert_match "stat ./template/python/template.yml", output
 
@@ -85,7 +69,8 @@ class FaasCli < Formula
       assert_match "node", shell_output("#{bin}/faas-cli new --list")
 
       output = shell_output("#{bin}/faas-cli deploy -yaml test.yml")
-      assert_equal expected, output.chomp
+      assert_match "Function dummy_function already exists, attempting rolling-update", output
+      assert_match "Deployed. 200 OK", output
 
       stable_resource = stable.instance_variable_get(:@resource)
       commit = stable_resource.instance_variable_get(:@specs)[:revision]

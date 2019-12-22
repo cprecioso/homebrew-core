@@ -1,14 +1,14 @@
 class RustupInit < Formula
   desc "The Rust toolchain installer"
-  homepage "https://github.com/rust-lang-nursery/rustup.rs"
-
-  url "https://github.com/rust-lang-nursery/rustup.rs/archive/1.11.0.tar.gz"
-  sha256 "000b873f239e8c5219ede3fd5836d6346ebea64ea928e2d754cdfc0f2071a874"
+  homepage "https://github.com/rust-lang/rustup.rs"
+  url "https://github.com/rust-lang/rustup.rs/archive/1.21.0.tar.gz"
+  sha256 "5dc7e1b16ec57c8cf9015f7f2b9780c09527b5f8783e8d5a62ddae7553a9587b"
 
   bottle do
-    sha256 "c426ae411e48c723c5c6fd6a1bd99a5187337139bd9e4d30cee2cad37d88d254" => :high_sierra
-    sha256 "ed86ccc7cb99ee87903b75d6238d388f00d7500cd9b18c806f795e35bc80b762" => :sierra
-    sha256 "bcffb2ac04a2c77bfec589a5c2d3d9f6125e41d22b56a11041dd823846ae9437" => :el_capitan
+    cellar :any_skip_relocation
+    sha256 "dcfa31ebf56502047530a96d741e8d5a5631e25cff964d108963327fd2f31068" => :catalina
+    sha256 "59a05d34a7ac1dd39d96698c46865c6c6113a5465aaa9e82bfe99ce0c7d45f4f" => :mojave
+    sha256 "8c279d7a186437297b3cb28359392ed779561142e38c898d6a02a2370f1f6b3c" => :high_sierra
   end
 
   depends_on "rust" => :build
@@ -18,9 +18,8 @@ class RustupInit < Formula
     cargo_home.mkpath
     ENV["CARGO_HOME"] = cargo_home
 
-    system "cargo", "build", "--release", "--verbose"
-
-    bin.install buildpath/"target/release/rustup-init"
+    system "cargo", "install", "--locked", "--root", prefix, "--path", ".",
+                    "--features", "no-self-update"
   end
 
   test do

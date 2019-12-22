@@ -1,38 +1,28 @@
 class Smali < Formula
   desc "Assembler/disassembler for Android's Java VM implementation"
   homepage "https://github.com/JesusFreke/smali"
-  url "https://bitbucket.org/JesusFreke/smali/downloads/smali-2.2.2.jar"
-  sha256 "5ec0ce98146d36c5826f1fbf362180a0a264ce0a31d50b8c24833975b47d98e6"
+  url "https://github.com/JesusFreke/smali/archive/v2.3.4.tar.gz"
+  sha256 "d364ebb60ac954cac7c974d72def897a373430fcd4e3349816743147fbaba375"
+  revision 1
 
-  bottle :unneeded
-
-  resource "baksmali-jar" do
-    url "https://bitbucket.org/JesusFreke/smali/downloads/baksmali-2.2.2.jar"
-    sha256 "cf7484d8c090fedfa9cd35215144ffabda43c30afd35e00b57c1cf53bde4c66f"
+  bottle do
+    cellar :any_skip_relocation
+    sha256 "0e9ddb33964040e89a7f044064b21ccdb30d47ed4901ac6d00ee963352ee48d4" => :catalina
+    sha256 "9883912d849479221c68ba6cba6a25f4fd89c20e80b44ac67e5e7341265cdf49" => :mojave
+    sha256 "7989f3aadb1f980d2c40addf62418ff03a0abd1e1e55262d3d2b96ad4e366cb6" => :high_sierra
   end
 
-  resource "baksmali" do
-    url "https://bitbucket.org/JesusFreke/smali/downloads/baksmali"
-    sha256 "5d4b79776d401f2cbdb66c7c88e23cca773b9a939520fef4bf42e2856bbbfed4"
-  end
-
-  resource "smali" do
-    url "https://bitbucket.org/JesusFreke/smali/downloads/smali"
-    sha256 "910297fbeefb4590e6bffd185726c878382a0960fb6a7f0733f045b6faf60a30"
-  end
+  depends_on "gradle" => :build
+  depends_on :java => "1.8+"
 
   def install
-    resource("baksmali-jar").stage do
-      libexec.install "baksmali-#{version}.jar" => "baksmali.jar"
-    end
+    system "gradle", "build", "--no-daemon"
 
-    libexec.install "smali-#{version}.jar" => "smali.jar"
+    %w[smali baksmali].each do |name|
+      jarfile = "#{name}-#{version}-dev-fat.jar"
 
-    %w[smali baksmali].each do |r|
-      libexec.install resource(r)
-      inreplace libexec/r, /^libdir=.*$/, "libdir=\"#{libexec}\""
-      chmod 0755, libexec/r
-      bin.install_symlink libexec/r
+      libexec.install "#{name}/build/libs/#{jarfile}"
+      bin.write_jar_script libexec/jarfile, name, :java_version => "1.8+"
     end
   end
 

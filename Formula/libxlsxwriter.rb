@@ -1,14 +1,14 @@
 class Libxlsxwriter < Formula
   desc "C library for creating Excel XLSX files"
   homepage "https://libxlsxwriter.github.io/"
-  url "https://github.com/jmcnamara/libxlsxwriter/archive/RELEASE_0.7.7.tar.gz"
-  sha256 "cce28d1a7e7887b105c7b0fd20b7be84f62070569f7a28e7779ceaec6be3847b"
+  url "https://github.com/jmcnamara/libxlsxwriter/archive/RELEASE_0.8.8.tar.gz"
+  sha256 "d9baf277f182e35d4789ea3e01887e7e832dc3c7eff4dbbd2ef6918e3f34df11"
 
   bottle do
     cellar :any
-    sha256 "67272ba5b0280fbd3a7e9b0c13a1eb22a320d66247f9348e2f89f048ebb8f695" => :high_sierra
-    sha256 "d0522539d53aa15f38fc371c0c81c9d2e0f6c247532de2a2b0330f556eb93aa5" => :sierra
-    sha256 "b5de17012d7a68ea786dbb2d7a638b8e39adbf7bd6c512fbbb474bd4f14f29a1" => :el_capitan
+    sha256 "b9f55067b734773a5712bd29f9249dadee939796794d2a8645acd3ac28fa9d4c" => :catalina
+    sha256 "8f7f4cacb5343b83bffa64bd81efe198d2fa04adb3a417a7b47afb021a105f8c" => :mojave
+    sha256 "302ae1928c8d0f01e8f7f94db948cd602ac04fddfa746ff78012af9d1b390084" => :high_sierra
   end
 
   def install

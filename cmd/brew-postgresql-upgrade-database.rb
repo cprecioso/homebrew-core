@@ -25,13 +25,14 @@ if old_datadir.exist?
   EOS
 end
 
-old_bin = Pathname.glob("#{HOMEBREW_PREFIX}/Cellar/#{name}{,@#{pg_version_data}}/#{pg_version_data}.*/bin").first
+old_pg_name = "#{name}@#{pg_version_data}"
+old_pg_glob = "#{HOMEBREW_PREFIX}/Cellar/#{old_pg_name}/#{pg_version_data}.*/bin"
+old_bin = Pathname.glob(old_pg_glob).first
 old_bin ||= begin
-  old_pg_name = "#{name}@#{pg_version_data}"
   Formula[old_pg_name]
   ohai "brew install #{old_pg_name}"
   system "brew", "install", old_pg_name
-  Pathname.glob("#{HOMEBREW_PREFIX}/Cellar/#{old_pg_name}/#{pg_version_data}.*/bin").first
+  Pathname.glob(old_pg_glob).first
 rescue FormulaUnavailableError
   nil
 end
@@ -48,7 +49,7 @@ begin
   # https://www.postgresql.org/docs/10/static/pgupgrade.html
   ohai "Upgrading #{name} data from #{pg_version_data} to #{pg_version_installed}..."
 
-  if /#{name}\s+started/ =~ Utils.popen_read("brew", "services", "list")
+  if /#{name}\s+started/.match?(Utils.popen_read("brew", "services", "list"))
     system "brew", "services", "stop", name
     service_stopped = true
   elsif quiet_system "#{bin}/pg_ctl", "-D", datadir, "status"
@@ -56,16 +57,55 @@ begin
     server_stopped = true
   end
 
+  # Shut down old server if it is up via brew services
+  if /#{old_pg_name}\s+started/.match?(Utils.popen_read("brew", "services", "list"))
+    system "brew", "services", "stop", old_pg_name
+  end
+
+  # get 'lc_collate' from old DB"
+  unless quiet_system "#{old_bin}/pg_ctl", "-w", "-D", datadir, "status"
+    system "#{old_bin}/pg_ctl", "-w", "-D", datadir, "start"
+  end
+
+  initdb_args = []
+  locale_settings = %w[
+    lc_collate
+    lc_ctype
+    lc_messages
+    lc_monetary
+    lc_numeric
+    lc_time
+    server_encoding
+  ]
+  locale_settings.each do |setting|
+    sql = "SELECT setting FROM pg_settings WHERE name LIKE '#{setting}';"
+    value = Utils.popen_read("#{old_bin}/psql", "postgres", "-qtAX", "-U", ENV["USER"], "-c", sql).strip
+
+    next if value.empty?
+
+    if setting == "server_encoding"
+      initdb_args += ["-E #{value}"]
+    else
+      initdb_args += ["--#{setting.tr!("_", "-")}=#{value}"]
+    end
+  end
+
+  if quiet_system "#{old_bin}/pg_ctl", "-w", "-D", datadir, "status"
+    system "#{old_bin}/pg_ctl", "-w", "-D", datadir, "stop"
+  end
+
   ohai "Moving #{name} data from #{datadir} to #{old_datadir}..."
   FileUtils.mv datadir, old_datadir
   moved_data = true
 
   (var/"postgres").mkpath
-  system "#{bin}/initdb", "#{var}/postgres"
+  ohai "Creating database..."
+  safe_system "#{bin}/initdb", *initdb_args, "#{var}/postgres"
   initdb_run = true
 
+  ohai "Migrating and upgrading data..."
   (var/"log").cd do
-    system "#{bin}/pg_upgrade",
+    safe_system "#{bin}/pg_upgrade",
       "-r",
       "-b", old_bin,
       "-B", bin,

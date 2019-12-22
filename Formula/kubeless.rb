@@ -1,30 +1,27 @@
 class Kubeless < Formula
   desc "Kubernetes Native Serverless Framework"
-  homepage "https://github.com/kubeless/kubeless"
-  url "https://github.com/kubeless/kubeless/archive/v1.0.0-alpha.2.tar.gz"
-  sha256 "0888bf4e9ae503307fdfbdcde03f8056dccdd77418cbf601c88d417bd2b307c9"
+  homepage "https://kubeless.io"
+  url "https://github.com/kubeless/kubeless/archive/v1.0.5.tar.gz"
+  sha256 "46eb797a0c1846ee8a75d8dd08c959042224ee8ecf227c29640e823f77358365"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "24791dcd0b4a7f14a092fa01145f415cefb61a44fbf3ef7ac31f547c44ba07f4" => :high_sierra
-    sha256 "b08c8e04d91c7b9ef53510a6bccbf09800042153d1293377c16456008a28009e" => :sierra
-    sha256 "66acd37ae6c7eefa7e5a457b489b3f5cc6afb1124a935b40c17d089cc36024a1" => :el_capitan
+    rebuild 1
+    sha256 "ed81401f5b4031e28ab1fe472b9d9a2deddc879eef6959234d087ba76c572882" => :catalina
+    sha256 "b75024000765c7c616d99e5893c34e3413965a7b26e1c89b49d478d49cf73f3e" => :mojave
+    sha256 "762ad7bb6a7ee337f9449591b2efafe9572614286ce3c9d15b47b3fdc30f44eb" => :high_sierra
   end
 
   depends_on "go" => :build
-  depends_on "kubernetes-cli" => :recommended
+  depends_on "kubernetes-cli"
 
   def install
-    ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/kubeless/kubeless").install buildpath.children
-    cd "src/github.com/kubeless/kubeless" do
-      ldflags = %W[
-        -w -X github.com/kubeless/kubeless/pkg/version.Version=v#{version}
-      ]
-      system "go", "build", "-o", bin/"kubeless", "-ldflags", ldflags.join(" "),
-             "./cmd/kubeless"
-      prefix.install_metafiles
-    end
+    ldflags = %W[
+      -s -w -X github.com/kubeless/kubeless/pkg/version.Version=v#{version}
+    ]
+    system "go", "build", "-ldflags", ldflags.join(" "), "-trimpath",
+           "-o", bin/"kubeless", "./cmd/kubeless"
+    prefix.install_metafiles
   end
 
   test do

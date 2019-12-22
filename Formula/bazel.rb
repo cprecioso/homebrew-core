@@ -1,16 +1,17 @@
 class Bazel < Formula
   desc "Google's own build tool"
   homepage "https://bazel.build/"
-  url "https://github.com/bazelbuild/bazel/releases/download/0.13.0/bazel-0.13.0-dist.zip"
-  sha256 "82e9035084660b9c683187618a29aa896f8b05b5f16ae4be42a80b5e5b6a7690"
+  url "https://github.com/bazelbuild/bazel/releases/download/2.0.0/bazel-2.0.0-dist.zip"
+  sha256 "724da3c656f68e787a86ebb9844773aa1c2e3a873cc39462a8f1b336153d6cbb"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "d8b4d0b540c3e17ae4dfc1eee8ce31d3f31603de971a94f8540159a81d19f3c5" => :high_sierra
-    sha256 "478016621923fc7b84f6bf5e7eaed6e1e52727c8c8636bcdca7f681e22a1502b" => :sierra
-    sha256 "16eebc137984826045a6409574d6d30c5232808de535d77e16ce3c50df60238e" => :el_capitan
+    sha256 "ad8b72428a6127b3417e90e26a4d0534cb0c65c22e158e958ddc1e9341a4f0bd" => :catalina
+    sha256 "424204a2aabeb6f6323bcf2909a64015137590c309e0e382ce053edfd9aeeac6" => :mojave
+    sha256 "f276a2424d4e6ed6ac5c65771f0370bec4382d8930c75e093703f65cf87803e8" => :high_sierra
   end
 
+  depends_on "python" => :build
   depends_on :java => "1.8"
   depends_on :macos => :yosemite
 
@@ -23,11 +24,18 @@ class Bazel < Formula
 
     cd "sources" do
       system "./compile.sh"
-      system "./output/bazel", "--output_user_root",
-             buildpath/"output_user_root", "build", "scripts:bash_completion"
+      system "./output/bazel",
+             "--output_user_root",
+             buildpath/"output_user_root",
+             "build",
+             "--host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8",
+             "--java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8",
+             "--host_javabase=@bazel_tools//tools/jdk:jdk",
+             "--javabase=@bazel_tools//tools/jdk:jdk",
+             "scripts:bash_completion"
 
       bin.install "scripts/packages/bazel.sh" => "bazel"
-      bin.install "output/bazel" => "bazel-real"
+      (libexec/"bin").install "output/bazel" => "bazel-real"
       bin.env_script_all_files(libexec/"bin", Language::Java.java_home_env("1.8"))
 
       bash_completion.install "bazel-bin/scripts/bazel-complete.bash"
@@ -56,7 +64,13 @@ class Bazel < Formula
       )
     EOS
 
-    system bin/"bazel", "build", "//:bazel-test"
-    system "bazel-bin/bazel-test"
+    system bin/"bazel",
+           "build",
+           "--host_java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8",
+           "--java_toolchain=@bazel_tools//tools/jdk:toolchain_hostjdk8",
+           "--host_javabase=@bazel_tools//tools/jdk:jdk",
+           "--javabase=@bazel_tools//tools/jdk:jdk",
+           "//:bazel-test"
+    assert_equal "Hi!\n", pipe_output("bazel-bin/bazel-test")
   end
 end

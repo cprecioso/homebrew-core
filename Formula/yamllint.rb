@@ -3,27 +3,27 @@ class Yamllint < Formula
 
   desc "Linter for YAML files"
   homepage "https://github.com/adrienverge/yamllint"
-  url "https://github.com/adrienverge/yamllint/archive/v1.11.1.tar.gz"
-  sha256 "56221b7c0a50b1619e491eb157624a5d1b160c1a4f019d64f117268f42fe4ca4"
+  url "https://github.com/adrienverge/yamllint/archive/v1.19.0.tar.gz"
+  sha256 "4e0f4a1a937b242b4500efced6332a28e5afcac3e4a1679af5bce145b1d026e1"
 
   bottle do
     cellar :any
-    sha256 "d9687db3c53fc090c6f3d8b61f54091c5b10092fcd8c2b0e065eebff770b5a78" => :high_sierra
-    sha256 "c15608fcd2ff761d635a2048ac92ce927e5363520bc7d2e4405deba71a5217dd" => :sierra
-    sha256 "9be7ee846fdec88b2d8c7dae3104b96e45b49504e84c825661a14d2ad1aefebc" => :el_capitan
+    sha256 "668c2f33c914ed5b6e319e9bee4bd8e66f0835d293409d1d0425fc31fa6454da" => :catalina
+    sha256 "ed6d6b30eeb8e88129aa9a027284ed60b8ae6b050296901eaa5d035ff0408a74" => :mojave
+    sha256 "72fe55cf7e722039e2f3fe65ca43ab3a4f3cb16d6666dd39d13a426ebbefb3c7" => :high_sierra
   end
 
   depends_on "libyaml"
   depends_on "python"
 
   resource "PyYAML" do
-    url "https://files.pythonhosted.org/packages/4a/85/db5a2df477072b2902b0eb892feb37d88ac635d36245a72a6a69b23b383a/PyYAML-3.12.tar.gz"
-    sha256 "592766c6303207a20efc445587778322d7f73b161bd994f227adaa341ba212ab"
+    url "https://files.pythonhosted.org/packages/8d/c9/e5be955a117a1ac548cdd31e37e8fd7b02ce987f9655f5c7563c656d5dcb/PyYAML-5.2.tar.gz"
+    sha256 "c0ee8eca2c582d29c3c2ec6e2c4f703d1b7f1fb10bc72317355a746057e7346c"
   end
 
   resource "pathspec" do
-    url "https://files.pythonhosted.org/packages/5e/59/d40bf36fda6cc9ec0e2d2d843986fa7d91f7144ad83e909bcb126b45ea88/pathspec-0.5.6.tar.gz"
-    sha256 "be664567cf96a718a68b33329862d1e6f6803ef9c48a6e2636265806cfceb29d"
+    url "https://files.pythonhosted.org/packages/7a/68/5902e8cd7f7b17c5879982a3a3ee2ad0c3b92b80c79989a2d3e1ca8d29e1/pathspec-0.6.0.tar.gz"
+    sha256 "e285ccc8b0785beadd4c18e5708b12bb8fcf529a1e61215b3feff1d1e559ea5c"
   end
 
   def install

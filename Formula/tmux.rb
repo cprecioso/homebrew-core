@@ -1,13 +1,14 @@
 class Tmux < Formula
   desc "Terminal multiplexer"
   homepage "https://tmux.github.io/"
-  url "https://github.com/tmux/tmux/releases/download/2.7/tmux-2.7.tar.gz"
-  sha256 "9ded7d100313f6bc5a87404a4048b3745d61f2332f99ec1400a7c4ed9485d452"
+  url "https://github.com/tmux/tmux/releases/download/3.0a/tmux-3.0a.tar.gz"
+  sha256 "4ad1df28b4afa969e59c08061b45082fdc49ff512f30fc8e43217d7b0e5f8db9"
 
   bottle do
-    sha256 "673822df46dec9d718fc2b4300fd2b95a261093cf3a256d71286d8fa79c6e4ef" => :high_sierra
-    sha256 "79e893ee81d2cd2af20f08aa4ba52297ad24bc9fb2c4d729b61a12f83aa2eec8" => :sierra
-    sha256 "a4f05bb40d0c699fac50f053500710d486aaf1ca0cb4fc96e75cb2d4b8461931" => :el_capitan
+    cellar :any
+    sha256 "3d29caf7e2b87c9f1af575b4ec10af3e29c5de6979a8bd884153d9e8e1b69f20" => :catalina
+    sha256 "6cfd3987dcda2901a3ed423138db7782ea88a993e1409c4ebb9d647b1c007e8a" => :mojave
+    sha256 "c7c42853ca6a3a5ad6ab6544defee14e450643f5ace274b9cf00d348e8525993" => :high_sierra
   end
 
   head do
@@ -20,7 +21,7 @@ class Tmux < Formula
 
   depends_on "pkg-config" => :build
   depends_on "libevent"
-  depends_on "utf8proc" => :optional
+  depends_on "ncurses"
 
   resource "completion" do
     url "https://raw.githubusercontent.com/imomaliev/tmux-bash-completion/homebrew_1.0.0/completions/tmux"
@@ -36,8 +37,6 @@ class Tmux < Formula
       --sysconfdir=#{etc}
     ]
 
-    args << "--enable-utf8proc" if build.with?("utf8proc")
-
     ENV.append "LDFLAGS", "-lresolv"
     system "./configure", *args
 
@@ -50,7 +49,7 @@ class Tmux < Formula
   def caveats; <<~EOS
     Example configuration has been installed to:
       #{opt_pkgshare}
-    EOS
+  EOS
   end
 
   test do

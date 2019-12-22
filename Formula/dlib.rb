@@ -1,39 +1,37 @@
 class Dlib < Formula
   desc "C++ library for machine learning"
   homepage "http://dlib.net/"
-  url "http://dlib.net/files/dlib-19.11.tar.bz2"
-  sha256 "3acb7525d25f445b3f8bc33ebe46f056297cc97c635abf275e6c0e7ca09ef48b"
+  url "http://dlib.net/files/dlib-19.19.tar.bz2"
+  sha256 "1decfe883635ce51acd72869cebe870ab9b85eb094d417adc8f48aa7b8c60cd7"
   head "https://github.com/davisking/dlib.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "6c4d49dd0e8726979f1a2caed12518f2ca8878bf91db5afdf96ad8922eb73084" => :high_sierra
-    sha256 "3cd72676d90e98b601ac293645c3ac434fc6b34b4322ed05cf2a6589face262c" => :sierra
-    sha256 "f4634700a98a7efff7ec09df57687ab4b601ee8dba85b2a4b24add00e965ee4e" => :el_capitan
+    sha256 "8ae2a8809bfe9eb63be8ec74adb0be4d84a84b80d6e31b090d7c17537b0adf12" => :catalina
+    sha256 "8eff561df45210fe1a71101d62ecd8b3ae1055d49e7c0442735b60bffe4dc034" => :mojave
+    sha256 "394c9aeeb51f9fa1c0cc5fc3b8343e42a3b439e27ac1a938c0d993bb6a0712eb" => :high_sierra
   end
-
-  depends_on :macos => :el_capitan # needs thread-local storage
 
   depends_on "cmake" => :build
   depends_on "jpeg"
   depends_on "libpng"
-  depends_on "openblas" => :optional
-  depends_on :x11 => :optional
-
-  needs :cxx11
+  depends_on :macos => :el_capitan # needs thread-local storage
+  depends_on "openblas"
 
   def install
     ENV.cxx11
 
-    args = std_cmake_args + %w[-DDLIB_USE_BLAS=ON -DDLIB_USE_LAPACK=ON]
-    args << "-DDLIB_NO_GUI_SUPPORT=ON" if build.without? "x11"
+    args = std_cmake_args + %W[
+      -DDLIB_USE_BLAS=ON
+      -DDLIB_USE_LAPACK=ON
+      -Dcblas_lib=#{Formula["openblas"].opt_lib}/libopenblas.dylib
+      -Dlapack_lib=#{Formula["openblas"].opt_lib}/libopenblas.dylib
+      -DDLIB_NO_GUI_SUPPORT=ON
+      -DUSE_SSE2_INSTRUCTIONS=ON
+    ]
 
-    if build.with? "openblas"
-      args << "-Dcblas_lib=#{Formula["openblas"].opt_lib}/libopenblas.dylib"
-      args << "-Dlapack_lib=#{Formula["openblas"].opt_lib}/libopenblas.dylib"
-    else
-      args << "-Dcblas_lib=/usr/lib/libcblas.dylib"
-      args << "-Dlapack_lib=/usr/lib/liblapack.dylib"
+    if MacOS.version.requires_sse4?
+      args << "-DUSE_SSE4_INSTRUCTIONS=ON"
     end
 
     mkdir "dlib/build" do

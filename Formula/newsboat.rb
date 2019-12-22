@@ -1,28 +1,36 @@
 class Newsboat < Formula
   desc "RSS/Atom feed reader for text terminals"
   homepage "https://newsboat.org/"
-  url "https://github.com/newsboat/newsboat/archive/r2.11.1.tar.gz"
-  sha256 "0c48ec60e1abafd7b62cf8e376eff9e92dcb7bbc6e7dfed9b9ac141853d826d8"
-  revision 1
+  url "https://newsboat.org/releases/2.17.1/newsboat-2.17.1.tar.xz"
+  sha256 "c1ebd24b017173156e817a1a3dd1d982808dec30a891e1f487806e5f86171997"
   head "https://github.com/newsboat/newsboat.git"
 
   bottle do
-    sha256 "40dab21789f3295916382b2c89565308d8c64849e338e3b5ec024eff522fc7b1" => :high_sierra
-    sha256 "6f542c9b385968f538dcd67d67b9d09462d6b1dee4eefb080ce1ab24f70609e6" => :sierra
-    sha256 "c40047c23d18ee45586a3820d67cb4c443605f40cbb88c6013d11c2def98b5ec" => :el_capitan
+    rebuild 1
+    sha256 "66aa9b1c98217bfc6d52b658501896bfa8e5d48048f553042838b22035508bc1" => :catalina
+    sha256 "cb49362b332f540d1df86f78385f98d99ddd0740d781764641ba9069d7e6a87a" => :mojave
+    sha256 "872d0d0553c67df6d9b095a173946cd1a357721e97037c20802f86550d2e0514" => :high_sierra
   end
 
   depends_on "asciidoc" => :build
   depends_on "docbook-xsl" => :build
   depends_on "pkg-config" => :build
+  depends_on "rust" => :build
   depends_on "gettext"
   depends_on "json-c"
   depends_on "libstfl"
-
-  needs :cxx11
+  uses_from_macos "curl"
+  uses_from_macos "libxml2"
+  uses_from_macos "libxslt"
 
   def install
+    gettext = Formula["gettext"]
+
+    ENV["GETTEXT_BIN_DIR"] = gettext.opt_bin.to_s
+    ENV["GETTEXT_LIB_DIR"] = gettext.lib.to_s
+    ENV["GETTEXT_INCLUDE_DIR"] = gettext.include.to_s
     ENV["XML_CATALOG_FILES"] = etc/"xml/catalog"
+
     system "make", "install", "prefix=#{prefix}"
   end
 

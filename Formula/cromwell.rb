@@ -1,8 +1,8 @@
 class Cromwell < Formula
   desc "Workflow Execution Engine using Workflow Description Language"
   homepage "https://github.com/broadinstitute/cromwell"
-  url "https://github.com/broadinstitute/cromwell/releases/download/31.1/cromwell-31.1.jar"
-  sha256 "100824a2f002aa746942a1d5569efcf1d11279c119b95400cfef8e245bf0f806"
+  url "https://github.com/broadinstitute/cromwell/releases/download/47//cromwell-47.jar"
+  sha256 "e0fbe17bb71741d5a231d0f3376f2a3cee2d8da084b615fdec95fea6d4159a42"
 
   head do
     url "https://github.com/broadinstitute/cromwell.git"
@@ -12,17 +12,16 @@ class Cromwell < Formula
   bottle :unneeded
 
   depends_on :java => "1.8+"
-  depends_on "akka"
 
   resource "womtool" do
-    url "https://github.com/broadinstitute/cromwell/releases/download/31.1/womtool-31.1.jar"
-    sha256 "1d1452de4b457b0cf8adbf9074f086ec71dc336387490eb904af38955f2f7bd2"
+    url "https://github.com/broadinstitute/cromwell/releases/download/47//womtool-47.jar"
+    sha256 "a82aa384abdaa1941e1c10229482d3d6010fc68d30b1c9f8023bc26be9c6b84b"
   end
 
   def install
     if build.head?
       system "sbt", "assembly"
-      libexec.install Dir["target/scala-*/cromwell-*.jar"][0]
+      libexec.install Dir["server/target/scala-*/cromwell-*.jar"][0]
       libexec.install Dir["womtool/target/scala-2.12/womtool-*.jar"][0]
     else
       libexec.install Dir["cromwell-*.jar"][0]

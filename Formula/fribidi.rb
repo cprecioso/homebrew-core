@@ -1,14 +1,14 @@
 class Fribidi < Formula
   desc "Implementation of the Unicode BiDi algorithm"
   homepage "https://github.com/fribidi/fribidi"
-  url "https://github.com/fribidi/fribidi/releases/download/v1.0.3/fribidi-1.0.3.tar.bz2"
-  sha256 "8d214b17b6eedcb416e53142c196c2896b9a685fca2a5bddc098a73d2b02ce12"
+  url "https://github.com/fribidi/fribidi/releases/download/v1.0.8/fribidi-1.0.8.tar.bz2"
+  sha256 "94c7b68d86ad2a9613b4dcffe7bbeb03523d63b5b37918bdf2e4ef34195c1e6c"
 
   bottle do
     cellar :any
-    sha256 "ea9de1088c192b2b816f82c926a791230a84a639007a44c021c51a11450770a2" => :high_sierra
-    sha256 "8aa317d486213f13d0fc1640eac5ec24c13e7e581a3a17c0877051bda2027d7c" => :sierra
-    sha256 "e7a9240ac6445d07f4fb337ce2d4df8beaa8c0d51e4e0a735678dfd3a76ce35b" => :el_capitan
+    sha256 "69403ab9b10c4e20ebbf4ace214fa89e2c055b9f7731871553e62a7065e31aaf" => :catalina
+    sha256 "b0084d49f6e420509f1f7d0ce0fb84be563302f1b907c12f1f8f53bda2b5ab15" => :mojave
+    sha256 "3b33566bbc8df22d57ee931b5de5fd59ab2d76058c26e20000deffaace90ffe2" => :high_sierra
   end
 
   def install

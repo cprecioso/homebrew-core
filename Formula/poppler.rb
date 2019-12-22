@@ -1,23 +1,15 @@
 class Poppler < Formula
   desc "PDF rendering library (based on the xpdf-3.0 code base)"
   homepage "https://poppler.freedesktop.org/"
-  url "https://poppler.freedesktop.org/poppler-0.65.0.tar.xz"
-  sha256 "89c8cf73f83efda78c5a9bd37c28f4593ad0e8a51556dbe39ed81e1ae2dd8f07"
+  url "https://poppler.freedesktop.org/poppler-0.83.0.tar.xz"
+  sha256 "685c650d9771e1c340ea222b57c8bd3f7502e2191ccfe8adeb9e638dcb0b799b"
   head "https://anongit.freedesktop.org/git/poppler/poppler.git"
 
   bottle do
-    sha256 "27c74583e59cce9bb30e86f0b9b68279b7a9857c0d7e8cd775b1af601bbc1017" => :high_sierra
-    sha256 "072cc17830d427b041ad0377fea49789fd4563d2936acf8ac75a2dd53081e1e4" => :sierra
-    sha256 "23ddf6a875667892aa6df15f03a7d28e8ba5dff066e3a616a17a423a44aa90e0" => :el_capitan
+    sha256 "ad085afe0d99c6ed4bccb962a05018b9bcbd02cd557d47b4c27486c5692ed595" => :catalina
+    sha256 "8243918cd0b1e21ca7b03ad43b14f8bebc73570e3a96e6a2dbeaec212a528a1e" => :mojave
+    sha256 "304c52cca6e0a16f809d5b31d8889b414ba538ad47ea8bb1852ccc05ab8087e3" => :high_sierra
   end
-
-  option "with-qt", "Build Qt5 backend"
-  option "with-little-cms2", "Use color management system"
-  option "with-nss", "Use NSS library for PDF signature validation"
-
-  deprecated_option "with-qt4" => "with-qt"
-  deprecated_option "with-qt5" => "with-qt"
-  deprecated_option "with-lcms2" => "with-little-cms2"
 
   depends_on "cmake" => :build
   depends_on "gobject-introspection" => :build
@@ -30,10 +22,11 @@ class Poppler < Formula
   depends_on "jpeg"
   depends_on "libpng"
   depends_on "libtiff"
+  depends_on "little-cms2"
+  depends_on "nss"
   depends_on "openjpeg"
-  depends_on "qt" => :optional
-  depends_on "little-cms2" => :optional
-  depends_on "nss" => :optional
+  depends_on "qt"
+  uses_from_macos "curl"
 
   conflicts_with "pdftohtml", "pdf2image", "xpdf",
     :because => "poppler, pdftohtml, pdf2image, and xpdf install conflicting executables"
@@ -43,30 +36,17 @@ class Poppler < Formula
     sha256 "1f9c7e7de9ecd0db6ab287349e31bf815ca108a5a175cf906a90163bdbe32012"
   end
 
-  needs :cxx11 if build.with?("qt") || MacOS.version < :mavericks
-
   def install
-    ENV.cxx11 if build.with?("qt") || MacOS.version < :mavericks
+    ENV.cxx11
 
     args = std_cmake_args + %w[
-      -DENABLE_XPDF_HEADERS=ON
-      -DENABLE_GLIB=ON
       -DBUILD_GTK_TESTS=OFF
+      -DENABLE_CMS=lcms2
+      -DENABLE_GLIB=ON
+      -DENABLE_QT5=ON
+      -DENABLE_UNSTABLE_API_ABI_HEADERS=ON
       -DWITH_GObjectIntrospection=ON
-      -DENABLE_QT4=OFF
     ]
-
-    if build.with? "qt"
-      args << "-DENABLE_QT5=ON"
-    else
-      args << "-DENABLE_QT5=OFF"
-    end
-
-    if build.with? "little-cms2"
-      args << "-DENABLE_CMS=lcms2"
-    else
-      args << "-DENABLE_CMS=none"
-    end
 
     system "cmake", ".", *args
     system "make", "install"
@@ -81,10 +61,12 @@ class Poppler < Formula
     end
 
     libpoppler = (lib/"libpoppler.dylib").readlink
-    to_fix = ["#{lib}/libpoppler-cpp.dylib", "#{lib}/libpoppler-glib.dylib",
-              *Dir["#{bin}/*"]]
-    to_fix << "#{lib}/libpoppler-qt5.dylib" if build.with?("qt")
-    to_fix.each do |f|
+    [
+      "#{lib}/libpoppler-cpp.dylib",
+      "#{lib}/libpoppler-glib.dylib",
+      "#{lib}/libpoppler-qt5.dylib",
+      *Dir["#{bin}/*"],
+    ].each do |f|
       macho = MachO.open(f)
       macho.change_dylib("@rpath/#{libpoppler}", "#{lib}/#{libpoppler}")
       macho.write!

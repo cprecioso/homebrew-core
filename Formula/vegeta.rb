@@ -1,14 +1,16 @@
 class Vegeta < Formula
   desc "HTTP load testing tool and library"
   homepage "https://github.com/tsenart/vegeta"
-  url "https://github.com/tsenart/vegeta/archive/v7.0.0.tar.gz"
-  sha256 "b9e2ae43b832849c46e9aa0e1cddf5938e79b9addad01481b3cbfb7aa09a03cb"
+  url "https://github.com/tsenart/vegeta.git",
+      :tag      => "v12.7.0",
+      :revision => "9c95632b3e8562be6df690c639a3f5a6f40d3004"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "259302bc8757ce5260679fd5f88826c4e143a106fc27938a145ceb8a321d81bc" => :high_sierra
-    sha256 "47522f5463ed21683a614b90478a2306b6d0ba2cef98d520a78645fa770ee9f3" => :sierra
-    sha256 "2a49fd07e3b3171408ffd8ebbc82793b78217667e0daf63d43e4feaca3f9b279" => :el_capitan
+    sha256 "8bcc25e5a17aabc111d71ea916e8433589a9fe9e41bf5f172c77faafdd4285c5" => :catalina
+    sha256 "5b40fdc60f3bb98cb1c922ecbf84ea48748e97a3e31d979378f1abc2b6ea032a" => :mojave
+    sha256 "d72fb9d6d2b987f0f35c0545d806a1ea4626e266641e6e8abecc4ce0be54e4ce" => :high_sierra
+    sha256 "1596ae7a805382e2073fbc92a94c105d4176d75aace961e829c00dedd47b97b9" => :sierra
   end
 
   depends_on "dep" => :build
@@ -16,13 +18,11 @@ class Vegeta < Formula
 
   def install
     ENV["GOPATH"] = buildpath
-    ENV["CGO_ENABLED"] = "0"
-
-    (buildpath/"src/github.com/tsenart/vegeta").install buildpath.children
-    cd "src/github.com/tsenart/vegeta" do
-      system "dep", "ensure"
-      system "go", "build", "-ldflags", "-X main.Version=#{version}",
-                            "-o", bin/"vegeta"
+    src = buildpath/"src/github.com/tsenart/vegeta"
+    src.install buildpath.children
+    src.cd do
+      system "make", "vegeta"
+      bin.install "vegeta"
       prefix.install_metafiles
     end
   end
@@ -31,6 +31,6 @@ class Vegeta < Formula
     input = "GET https://google.com"
     output = pipe_output("#{bin}/vegeta attack -duration=1s -rate=1", input, 0)
     report = pipe_output("#{bin}/vegeta report", output, 0)
-    assert_match /Success +\[ratio\] +100.00%/, report
+    assert_match(/Success +\[ratio\] +100.00%/, report)
   end
 end

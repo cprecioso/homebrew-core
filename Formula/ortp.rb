@@ -1,14 +1,13 @@
 class Ortp < Formula
   desc "Real-time transport protocol (RTP, RFC3550) library"
-  homepage "https://www.linphone.org/technical-corner/ortp/overview"
-  url "http://nongnu.askapache.com/linphone/ortp/sources/ortp-0.27.0.tar.gz"
-  sha256 "eb61a833ab3ad80978d7007411240f46e9b2d1034373b9d9dfaac88c1b6ec0af"
-  revision 2
+  homepage "https://www.linphone.org/technical-corner/ortp"
+  url "https://www.linphone.org/releases/sources/ortp/ortp-1.0.2.tar.gz"
+  sha256 "a51551194332ac62b47865dc1e60893ece4922c489a7b0a780b8be562978d804"
 
   bottle do
-    sha256 "e3a51b196a5df3f631c257348a977925231ebca55511b32f35e2da4852b8e69c" => :high_sierra
-    sha256 "abcb87f456d528c5ba4a8fdaee206ce7e9d32ea4505b792cc2beaf4f010b01ca" => :sierra
-    sha256 "09a70f1865222aabc8c0c3c68c45f7d6589f6f6d0cdf9891d81ba5ed77961964" => :el_capitan
+    sha256 "f49949830b4e6f09bb69c81ff2e2f8f3653bae1d648bc57db393bb92195fc260" => :catalina
+    sha256 "1659170fed5ce087fe92e8bca8f8666ce1a2573220897df535a035582b8bd45b" => :mojave
+    sha256 "183386b78f9bb94670265af5b717b604d678b399517e7ee9848b6999209755e6" => :high_sierra
   end
 
   depends_on "cmake" => :build
@@ -16,8 +15,8 @@ class Ortp < Formula
   depends_on "mbedtls"
 
   resource "bctoolbox" do
-    url "https://github.com/BelledonneCommunications/bctoolbox/archive/0.6.0.tar.gz"
-    sha256 "299dedcf8f1edea79964314504f0d24e97cdf24a289896fc09bc69c38eb9f9be"
+    url "https://www.linphone.org/releases/sources/bctoolbox/bctoolbox-0.6.0.tar.gz"
+    sha256 "4657e1970df262f77e47dee63b1135a5e063b63b0c42cfe7f41642b22e3831a8"
   end
 
   def install
@@ -36,9 +35,14 @@ class Ortp < Formula
 
     ENV.prepend_path "PKG_CONFIG_PATH", libexec/"lib/pkgconfig"
 
-    system "./configure", "--disable-debug", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
-    system "make", "install"
+    args = std_cmake_args + %W[
+      -DCMAKE_PREFIX_PATH=#{libexec}
+      -DENABLE_DOC=NO
+    ]
+    mkdir "build" do
+      system "cmake", "..", *args
+      system "make", "install"
+    end
   end
 
   test do
@@ -52,7 +56,7 @@ class Ortp < Formula
         return 0;
       }
     EOS
-    system ENV.cc, "-I#{include}", "-L#{lib}", "-lortp",
+    system ENV.cc, "-I#{include}", "-I#{libexec}/include", "-L#{lib}", "-lortp",
            testpath/"test.c", "-o", "test"
     system "./test"
   end

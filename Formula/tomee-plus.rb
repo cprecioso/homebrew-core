@@ -1,8 +1,8 @@
 class TomeePlus < Formula
   desc "Everything in TomEE Web Profile and JAX-RS, plus more"
   homepage "https://tomee.apache.org/"
-  url "https://www.apache.org/dyn/closer.cgi?path=tomee/tomee-1.7.4/apache-tomee-1.7.4-plus.tar.gz"
-  sha256 "be43806d65bde4fdd393e0d78f91f910f9bf2e468425738d817afe0fefaffbc3"
+  url "https://archive.apache.org/dist/tomee/tomee-8.0.0/apache-tomee-8.0.0-plus.tar.gz"
+  sha256 "677d9db26a5d1d8fc23a348e29935133bdb995ae420623563bcfb0b6a6638da8"
 
   bottle :unneeded
 
@@ -23,7 +23,7 @@ class TomeePlus < Formula
       #{opt_libexec}
     To run Apache TomEE:
       #{opt_libexec}/bin/tomee-plus-startup
-    EOS
+  EOS
   end
 
   test do

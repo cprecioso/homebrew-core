@@ -1,12 +1,12 @@
 class Activemq < Formula
   desc "Apache ActiveMQ: powerful open source messaging server"
   homepage "https://activemq.apache.org/"
-  url "https://www.apache.org/dyn/closer.cgi?path=/activemq/5.15.3/apache-activemq-5.15.3-bin.tar.gz"
-  sha256 "5755d298bd136842b0e2479e5aa1c1dda4f61ad358af6f3b16231a3bf711fa61"
+  url "https://www.apache.org/dyn/closer.cgi?path=/activemq/5.15.11/apache-activemq-5.15.11-bin.tar.gz"
+  sha256 "d72b59a9fa8199ae0de6326e05e0f3136deaee4bbd8de269e6193a8ae012b089"
 
   bottle :unneeded
 
-  depends_on :java => "1.7+"
+  depends_on :java => "1.8+"
 
   def install
     rm_rf Dir["bin/linux-x86-*"]
@@ -37,7 +37,7 @@ class Activemq < Formula
         </array>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

@@ -1,22 +1,22 @@
 class Ntopng < Formula
   desc "Next generation version of the original ntop"
   homepage "https://www.ntop.org/products/traffic-analysis/ntop/"
-  revision 2
+  revision 1
 
   stable do
-    url "https://github.com/ntop/ntopng/archive/3.2.tar.gz"
-    sha256 "3d7f7934d983623a586132d2602f25b630614f1d3ae73c56d6290deed1af19ee"
+    url "https://github.com/ntop/ntopng/archive/3.8.tar.gz"
+    sha256 "683d28aece3bf3f17c3d53d7a76fbd2a24719767477f5dce55268683fd87f821"
 
     resource "nDPI" do
-      url "https://github.com/ntop/nDPI/archive/2.2.tar.gz"
-      sha256 "25607db12f466ba88a1454ef8b378e0e9eb59adffad6baa4b5610859a102a5dd"
+      url "https://github.com/ntop/nDPI/archive/2.6.tar.gz"
+      sha256 "efdfb68940385b18079920330528978765dc2a90c8163d10f63301bddadbf91e"
     end
   end
 
   bottle do
-    sha256 "adb72c85bd04a9707a85d7c06282cb7c92641ed0775bcb686987031b8a5e21dc" => :high_sierra
-    sha256 "6647cdce6eecd2163326cc73f79b40390525f799c147d472a789db4a089d4f56" => :sierra
-    sha256 "0eef0fb0ef2c1d9c34761b324097ea0a938ae41a2cc0e5fdf5f4019a455884ee" => :el_capitan
+    sha256 "3a602d61daeaefb049709098a3d242c1ac2ad5afb4f77be8a4ddbf93da664b95" => :catalina
+    sha256 "6cb5cc074b9ea01ad835bd886db85ae9e9b1df171ed61958533dd117a0e7be94" => :mojave
+    sha256 "69641c0b78b4e5d642ae7410d2859f501434d25b8064d33dcb46156520432a7c" => :high_sierra
   end
 
   head do
@@ -29,17 +29,18 @@ class Ntopng < Formula
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
-  depends_on "pkg-config" => :build
-  depends_on "libtool" => :build
-  depends_on "json-glib" => :build
-  depends_on "zeromq" => :build
   depends_on "gnutls" => :build
-
-  depends_on "json-c"
-  depends_on "rrdtool"
+  depends_on "json-glib" => :build
+  depends_on "libtool" => :build
+  depends_on "pkg-config" => :build
+  depends_on "zeromq" => :build
   depends_on "geoip"
+  depends_on "json-c"
+  depends_on "libmaxminddb"
+  depends_on "lua"
+  depends_on "mysql-client"
   depends_on "redis"
-  depends_on "mysql"
+  depends_on "rrdtool"
 
   def install
     resource("nDPI").stage do

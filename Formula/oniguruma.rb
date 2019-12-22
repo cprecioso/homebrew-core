@@ -1,22 +1,29 @@
 class Oniguruma < Formula
   desc "Regular expressions library"
   homepage "https://github.com/kkos/oniguruma/"
-  url "https://github.com/kkos/oniguruma/releases/download/v6.8.2/onig-6.8.2.tar.gz"
-  sha256 "adeada5f6b54c2a6f58ff021831a01b18a62b55ea9935e972e36ebb19e7c4903"
+  url "https://github.com/kkos/oniguruma/releases/download/v6.9.4/onig-6.9.4.tar.gz"
+  sha256 "4669d22ff7e0992a7e93e116161cac9c0949cd8960d1c562982026726f0e6d53"
+  head "https://github.com/kkos/oniguruma.git"
 
   bottle do
     cellar :any
-    sha256 "f56c5eadeeef8a6276d60fc76381b41d33a7b0b2a4036a506edacb4be87a1dad" => :high_sierra
-    sha256 "194728105a10c8dea861a77455b9c60f35b3950f75a870cb1d598e31587ec87e" => :sierra
-    sha256 "ae49cb52498081b003b04c3b7aace56d51eb3f8cd3490362cc75f4a4091a9e5b" => :el_capitan
+    sha256 "05e25bc53db0cf338a7f765da76c66260972d6b4e259be415bc17807a8b60fe9" => :catalina
+    sha256 "ab2bb92e40e17569c54dda0ed3b3a0fc6f98be761107fba918754af75817de6f" => :mojave
+    sha256 "1a97b801983a8929de40bcc829d50e3f37413dbb7076370e203deff76dad4357" => :high_sierra
   end
 
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+  depends_on "libtool" => :build
+
   def install
+    system "autoreconf", "-vfi"
     system "./configure", "--disable-dependency-tracking", "--prefix=#{prefix}"
+    system "make"
     system "make", "install"
   end
 
   test do
-    assert_match /#{prefix}/, shell_output("#{bin}/onig-config --prefix")
+    assert_match(/#{prefix}/, shell_output("#{bin}/onig-config --prefix"))
   end
 end

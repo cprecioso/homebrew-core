@@ -1,30 +1,23 @@
 class Asio < Formula
   desc "Cross-platform C++ Library for asynchronous programming"
   homepage "https://think-async.com/Asio"
-  url "https://downloads.sourceforge.net/project/asio/asio/1.12.1%20%28Stable%29/asio-1.12.1.tar.bz2"
-  sha256 "a9091b4de847539fa5b2259bf76a5355339c7eaaa5e33d7d4ae74d614c21965a"
+  url "https://downloads.sourceforge.net/project/asio/asio/1.14.0%20%28Stable%29/asio-1.14.0.tar.bz2"
+  sha256 "2e1be1a518a568525f79b5734d13731b6b4e4399ec576a0961db6e2d86112973"
   head "https://github.com/chriskohlhoff/asio.git"
 
   bottle do
     cellar :any
-    sha256 "65892f6827794887cb8ace02435bdbce35e213b74e3c8acfc157a9f5ef41f239" => :high_sierra
-    sha256 "6564529f098c6f936c7b57aaf562c396f89bc4e8b13018b1bf395502616b4b92" => :sierra
-    sha256 "fbb2170a86dcb1af7b899e0a877dd5351ae891abf3a3bc82e0afc7ce3b5dfa24" => :el_capitan
+    sha256 "3f2c8ab0aadadda4d4707b834787d0c02841a31cec763b4c4d32ca3f859bd314" => :catalina
+    sha256 "7be9a1e39bbd3fa59059fc9d8d98f7f43520da052cf245f195bbdd325ec1a8ec" => :mojave
+    sha256 "ea18bc6cca19d15ff019a98be7a9c31c34e477b5daac54ce7379f02a6635247f" => :high_sierra
   end
-
-  option "with-boost-coroutine", "Use Boost.Coroutine to implement stackful coroutines"
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
-
-  depends_on "boost" => :optional
-  depends_on "boost" if build.with?("boost-coroutine")
-  depends_on "openssl"
-
-  needs :cxx11 if build.without? "boost"
+  depends_on "openssl@1.1"
 
   def install
-    ENV.cxx11 if build.without? "boost"
+    ENV.cxx11
 
     if build.head?
       cd "asio"
@@ -32,15 +25,11 @@ class Asio < Formula
     else
       system "autoconf"
     end
-    args = %W[
-      --disable-dependency-tracking
-      --disable-silent-rules
-      --prefix=#{prefix}
-      --with-boost=#{(build.with?("boost") || build.with?("boost-coroutine")) ? Formula["boost"].opt_include : "no"}
-    ]
-    args << "--enable-boost-coroutine" if build.with? "boost-coroutine"
 
-    system "./configure", *args
+    system "./configure", "--disable-dependency-tracking",
+                          "--disable-silent-rules",
+                          "--prefix=#{prefix}",
+                          "--with-boost=no"
     system "make", "install"
     pkgshare.install "src/examples"
   end
@@ -49,6 +38,7 @@ class Asio < Formula
     found = [pkgshare/"examples/cpp11/http/server/http_server",
              pkgshare/"examples/cpp03/http/server/http_server"].select(&:exist?)
     raise "no http_server example file found" if found.empty?
+
     pid = fork do
       exec found.first, "127.0.0.1", "8080", "."
     end

@@ -1,40 +1,31 @@
 class Unbound < Formula
   desc "Validating, recursive, caching DNS resolver"
   homepage "https://www.unbound.net"
-  url "https://www.unbound.net/downloads/unbound-1.7.1.tar.gz"
-  sha256 "56e085ef582c5372a20207de179d0edb4e541e59f87be7d4ee1d00d12008628d"
+  url "https://nlnetlabs.nl/downloads/unbound/unbound-1.9.6.tar.gz"
+  sha256 "1d98fc6ea99197a20b4a0e540e87022cf523085786e0fc26de6ebb2720f5aaf0"
+  head "https://github.com/NLnetLabs/unbound.git"
 
   bottle do
-    sha256 "071d78e17adc6cb939c6a54ec4012b0647bc9897cdaefe9b70d1618688a1ea7a" => :high_sierra
-    sha256 "7f13496f800e34f2a936fa57118385f8215c2b0c735bb40fcb2dc36cd994e51e" => :sierra
-    sha256 "a64db7e2ad6f9141e533c75dbd83415bb84e6eed4f56168b03ae73f9b9032e99" => :el_capitan
+    sha256 "813d64c350df8065b82e0ec4a057d04839c75b7e34054e9d9aec71b5b13008b1" => :catalina
+    sha256 "f6ebf1d706a3c8b2b8d955757ead2fb7bcbc1219a7a64a1cb441d19c66ed1543" => :mojave
+    sha256 "b8249022a2846505980ea13fe2b9606fb83e84aade6178816cbc3af36e81ee2d" => :high_sierra
   end
 
-  deprecated_option "with-python" => "with-python@2"
-
-  depends_on "openssl"
   depends_on "libevent"
-  depends_on "python@2" => :optional
-  depends_on "swig" if build.with? "python@2"
+  depends_on "openssl@1.1"
 
   def install
     args = %W[
       --prefix=#{prefix}
       --sysconfdir=#{etc}
+      --enable-event-api
+      --enable-tfo-client
+      --enable-tfo-server
       --with-libevent=#{Formula["libevent"].opt_prefix}
-      --with-ssl=#{Formula["openssl"].opt_prefix}
+      --with-ssl=#{Formula["openssl@1.1"].opt_prefix}
     ]
 
-    if build.with? "python@2"
-      ENV.prepend "LDFLAGS", `python-config --ldflags`.chomp
-      ENV.prepend "PYTHON_VERSION", "2.7"
-
-      args << "--with-pyunbound"
-      args << "--with-pythonmodule"
-      args << "PYTHON_SITE_PKG=#{lib}/python2.7/site-packages"
-    end
-
-    args << "--with-libexpat=#{MacOS.sdk_path}/usr" unless MacOS::CLT.installed?
+    args << "--with-libexpat=#{MacOS.sdk_path}/usr" if MacOS.sdk_path_if_needed
     system "./configure", *args
 
     inreplace "doc/example.conf", 'username: "unbound"', 'username: "@@HOMEBREW-UNBOUND-USER@@"'
@@ -47,6 +38,7 @@ class Unbound < Formula
     conf = etc/"unbound/unbound.conf"
     return unless conf.exist?
     return unless conf.read.include?('username: "@@HOMEBREW-UNBOUND-USER@@"')
+
     inreplace conf, 'username: "@@HOMEBREW-UNBOUND-USER@@"',
                     "username: \"#{ENV["USER"]}\""
   end
@@ -55,7 +47,7 @@ class Unbound < Formula
 
   def plist; <<~EOS
     <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-/Apple/DTD PLIST 1.0/EN" "http:/www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
       <dict>
         <key>Label</key>
@@ -79,7 +71,7 @@ class Unbound < Formula
         <string>/dev/null</string>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

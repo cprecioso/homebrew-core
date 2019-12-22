@@ -1,13 +1,13 @@
 class Bcftools < Formula
   desc "Tools for BCF/VCF files and variant calling from samtools"
   homepage "https://www.htslib.org/"
-  url "https://github.com/samtools/bcftools/releases/download/1.8/bcftools-1.8.tar.bz2"
-  sha256 "4acbfd691f137742e0be63d09f516434f0faf617a5c60f466140e0677915fced"
+  url "https://github.com/samtools/bcftools/releases/download/1.10/bcftools-1.10.tar.bz2"
+  sha256 "2a37721b944772633f334cc0897c43430d56cf59d7363b72d5cd2cfc9ae3af83"
 
   bottle do
-    sha256 "a351142dcda713f6fe24dcb5d685eff732b70c93be4db5bd972c4558f0805a5f" => :high_sierra
-    sha256 "6ee6f7174793a748c252796b83e7d356c5328ca9570aab3242528abe7132dd8b" => :sierra
-    sha256 "b7cc2a872c25a84b3a8f1fdb8243239c5a9914009fbfaf06ab677554de56194c" => :el_capitan
+    sha256 "1937e40aa679e318739a7539c005b5b4cf4b464b70580804c473bfd4f60e1343" => :catalina
+    sha256 "fd0fc2e7301bfdbe6c6bc8f1d89f3c70dcae4785b7d74cc450c7d7d9758efdd6" => :mojave
+    sha256 "77553a88c85fb00925a8bb4f9d4d00ce3f81bb5e7643a9029ab29fa7d8f6dc4e" => :high_sierra
   end
 
   depends_on "gsl"

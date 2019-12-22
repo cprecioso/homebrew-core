@@ -1,28 +1,41 @@
 class Libpq < Formula
   desc "Postgres C API library"
-  homepage "https://www.postgresql.org/docs/10/static/libpq.html"
-  url "https://ftp.postgresql.org/pub/source/v10.4/postgresql-10.4.tar.bz2"
-  sha256 "1b60812310bd5756c62d93a9f93de8c28ea63b0df254f428cd1cf1a4d9020048"
+  homepage "https://www.postgresql.org/docs/12/libpq.html"
+  url "https://ftp.postgresql.org/pub/source/v12.1/postgresql-12.1.tar.bz2"
+  sha256 "a09bf3abbaf6763980d0f8acbb943b7629a8b20073de18d867aecdb7988483ed"
+  revision 1
 
   bottle do
-    sha256 "86701653028d7cdde8a18e4f11cbca42015cf004c0f7a1eac6fbf0ab1e928178" => :high_sierra
-    sha256 "fd2d8807b4825523bafd26b5cb89dfc534632535fae310fb749f4c5528c5ddce" => :sierra
-    sha256 "14f520810ec641b992b5f65894a3944942c17d72ece4b670274debc40f3dcc58" => :el_capitan
+    sha256 "7091cf8b116e4320adb38a78a7cfe09676db01c6ab20775039352bcc7627cccb" => :catalina
+    sha256 "c391659b1be8ed18885421e23cf5a0b33f04b389d6c3b41aad5dfa43c38f9641" => :mojave
+    sha256 "47317a41104e4cef411027fc5fcead51b5901ea7ed0b07ab3ad6a582767486b4" => :high_sierra
   end
 
   keg_only "conflicts with postgres formula"
 
-  depends_on "openssl"
+  depends_on "openssl@1.1"
 
   def install
     system "./configure", "--disable-debug",
                           "--prefix=#{prefix}",
-                          "--with-openssl"
+                          "--with-gssapi",
+                          "--with-openssl",
+                          "--libdir=#{opt_lib}",
+                          "--includedir=#{opt_include}"
+    dirs = %W[
+      libdir=#{lib}
+      includedir=#{include}
+      pkgincludedir=#{include}/postgresql
+      includedir_server=#{include}/postgresql/server
+      includedir_internal=#{include}/postgresql/internal
+    ]
     system "make"
-    system "make", "-C", "src/bin", "install"
-    system "make", "-C", "src/include", "install"
-    system "make", "-C", "src/interfaces", "install"
-    system "make", "-C", "doc", "install"
+    system "make", "-C", "src/bin", "install", *dirs
+    system "make", "-C", "src/include", "install", *dirs
+    system "make", "-C", "src/interfaces", "install", *dirs
+    system "make", "-C", "src/common", "install", *dirs
+    system "make", "-C", "src/port", "install", *dirs
+    system "make", "-C", "doc", "install", *dirs
   end
 
   test do

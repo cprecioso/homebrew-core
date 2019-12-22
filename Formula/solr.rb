@@ -1,8 +1,8 @@
 class Solr < Formula
   desc "Enterprise search platform from the Apache Lucene project"
   homepage "https://lucene.apache.org/solr/"
-  url "https://www.apache.org/dyn/closer.cgi?path=lucene/solr/7.3.1/solr-7.3.1.tgz"
-  sha256 "0cd8953cf7c85bc0d9a533429200c531822f18807f9fc9fb792c0b149dbd0c4d"
+  url "https://www.apache.org/dyn/closer.cgi?path=lucene/solr/8.3.1/solr-8.3.1.tgz"
+  sha256 "300ae2632e1221aa4e4e4ffd317604dc0ee72f7af39cf78a7ba0e9b641320059"
 
   bottle :unneeded
 
@@ -13,6 +13,7 @@ class Solr < Formula
   def install
     bin.install %w[bin/solr bin/post bin/oom_solr.sh]
     pkgshare.install "bin/solr.in.sh"
+    (var/"lib/solr").install "server/solr/README.txt", "server/solr/solr.xml", "server/solr/zoo.cfg"
     prefix.install %w[example server]
     libexec.install Dir["*"]
 
@@ -42,6 +43,8 @@ class Solr < Formula
             <string>#{opt_bin}/solr</string>
             <string>start</string>
             <string>-f</string>
+            <string>-s</string>
+            <string>/usr/local/var/lib/solr</string>
           </array>
           <key>ServiceDescription</key>
           <string>#{name}</string>

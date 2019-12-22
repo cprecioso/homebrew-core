@@ -1,28 +1,27 @@
 class Eccodes < Formula
-  desc "Decode and encode messages in the GRIB 1/2 and  BUFR 3/4 formats"
-  homepage "https://software.ecmwf.int/wiki/display/ECC/ecCodes+Home"
-  url "https://software.ecmwf.int/wiki/download/attachments/45757960/eccodes-2.7.3-Source.tar.gz"
-  sha256 "6fab143dbb34604bb2e04d10143855c0906b00411c1713fd7ff5c35519b871db"
+  desc "Decode and encode messages in the GRIB 1/2 and BUFR 3/4 formats"
+  homepage "https://confluence.ecmwf.int/display/ECC"
+  url "https://software.ecmwf.int/wiki/download/attachments/45757960/eccodes-2.15.0-Source.tar.gz"
+  sha256 "9fec8ad11f380795af632fb3105c4aa37d30f22fa70dba48fd93324cf6388d59"
 
   bottle do
-    sha256 "72319e250c54c1d6b1d652123c8274a872fd6c790456ba198ec91ede2c1afb69" => :high_sierra
-    sha256 "2f4b97fcdb043302d53e370df0faba8b258c91ba67ddff78cefbe8458f803567" => :sierra
-    sha256 "654f8cf80796ef2a45d29b3bce3d258fffbe260ddd81c87b515b9c7c24246537" => :el_capitan
+    sha256 "4fc6f61a8964aeb44d1ef5797d3f4504039ddd718567965c000dc2ee49f58b3c" => :catalina
+    sha256 "747cf33b6f49ed3a7a703bb6c9037724025d9c468c49d3e3fbd4e34324f6f4c7" => :mojave
+    sha256 "0edcf85b1d1e660005dcdd00e627d462f221a300257bc4bda581888467175169" => :high_sierra
   end
 
   depends_on "cmake" => :build
   depends_on "gcc" # for gfortran
   depends_on "jasper"
   depends_on "libpng"
-  depends_on "numpy"
-
-  conflicts_with "grib-api", :because => "both install grib_api.h"
+  depends_on "netcdf"
 
   def install
     inreplace "CMakeLists.txt", "find_package( OpenJPEG )", ""
 
     mkdir "build" do
-      system "cmake", "..", "-DENABLE_NETCDF=OFF", "-DENABLE_PNG=ON", *std_cmake_args
+      system "cmake", "..", "-DENABLE_NETCDF=ON", "-DENABLE_PNG=ON",
+                            "-DENABLE_PYTHON=OFF", *std_cmake_args
       system "make", "install"
     end
   end

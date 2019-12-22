@@ -1,39 +1,31 @@
 class MongoCDriver < Formula
   desc "C driver for MongoDB"
   homepage "https://github.com/mongodb/mongo-c-driver"
-  url "https://github.com/mongodb/mongo-c-driver/releases/download/1.9.5/mongo-c-driver-1.9.5.tar.gz"
-  sha256 "4a4bd0b0375450250a3da50c050b84b9ba8950ce32e16555714e75ebae0b8019"
+  url "https://github.com/mongodb/mongo-c-driver/releases/download/1.15.1/mongo-c-driver-1.15.1.tar.gz"
+  sha256 "4ee47c146ff0059d15ab547a0c2a87f7113f063e1c625e51f8c5174853b07765"
+  head "https://github.com/mongodb/mongo-c-driver.git"
 
   bottle do
     cellar :any
-    sha256 "593189006ea209f85d5abe47d202cf00a1372fa7fe940fb520dfd93034233a96" => :high_sierra
-    sha256 "2f38f204bd511a0950b6837e444065415bf3f1f38e30e233f4cf1457819caf73" => :sierra
-    sha256 "fb9688c0c130589d978caf63b4cc9943d2c288a0a3ee1240a4601ad243127037" => :el_capitan
+    rebuild 1
+    sha256 "fbb0256760644f90124feec011db8a441fb6708233c599b16f1f583911245835" => :catalina
+    sha256 "f128cc30b15aad0b2cb4957b2dc86da627e56cb8f18fcdba76a6e422ecb6b7d4" => :mojave
+    sha256 "641f4c7b285ee136b73c0037a4ed49428c92b657253ca357363379c29c372304" => :high_sierra
   end
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
-  depends_on "libtool" => :build
+  depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "sphinx-doc" => :build
 
   def install
-    system "autoreconf", "-fiv"
-
-    args = %W[
-      --disable-debug
-      --disable-dependency-tracking
-      --disable-silent-rules
-      --prefix=#{prefix}
-      --enable-man-pages
-      --with-libbson=bundled
-      --enable-ssl=darwin
-    ]
-
-    system "./configure", *args
+    cmake_args = std_cmake_args
+    if build.head?
+      cmake_args << "-DBUILD_VERSION=1.16.0-pre"
+    end
+    system "cmake", ".", *cmake_args
     system "make", "install"
     (pkgshare/"libbson").install "src/libbson/examples"
-    (pkgshare/"mongoc").install "examples"
+    (pkgshare/"libmongoc").install "src/libmongoc/examples"
   end
 
   test do
@@ -42,7 +34,7 @@ class MongoCDriver < Formula
     (testpath/"test.json").write('{"name": "test"}')
     assert_match "\u0000test\u0000", shell_output("./test test.json")
 
-    system ENV.cc, "-o", "test", pkgshare/"mongoc/examples/mongoc-ping.c",
+    system ENV.cc, "-o", "test", pkgshare/"libmongoc/examples/mongoc-ping.c",
       "-I#{include}/libmongoc-1.0", "-I#{include}/libbson-1.0",
       "-L#{lib}", "-lmongoc-1.0", "-lbson-1.0"
     assert_match "No suitable servers", shell_output("./test mongodb://0.0.0.0 2>&1", 3)

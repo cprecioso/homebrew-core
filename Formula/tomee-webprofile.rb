@@ -1,9 +1,8 @@
 class TomeeWebprofile < Formula
-  desc "All-Apache Java EE 6 Web Profile stack"
+  desc "All-Apache Java EE 7 Web Profile stack"
   homepage "https://tomee.apache.org/"
-  url "https://www.apache.org/dyn/closer.cgi?path=tomee/tomee-1.7.4/apache-tomee-1.7.4-webprofile.tar.gz"
-  sha256 "4a1c13e60fcf1289980b0c14f8e67daf31b1c91f4e208fbc7aeec0a252655897"
-  revision 1
+  url "https://archive.apache.org/dist/tomee/tomee-8.0.0/apache-tomee-8.0.0-webprofile.tar.gz"
+  sha256 "5cdda0d0416700692f1e5282154f786f1fdb7015aa3909b0e44cdfe39720dedd"
 
   bottle :unneeded
 
@@ -30,7 +29,7 @@ class TomeeWebprofile < Formula
       #{opt_libexec}
     To run Apache TomEE:
       #{opt_libexec}/bin/tomee-webprofile-startup
-    EOS
+  EOS
   end
 
   test do

@@ -1,12 +1,13 @@
 class Yarn < Formula
   desc "JavaScript package manager"
   homepage "https://yarnpkg.com/"
-  url "https://yarnpkg.com/downloads/1.6.0/yarn-v1.6.0.tar.gz"
-  sha256 "a57b2fdb2bfeeb083d45a883bc29af94d5e83a21c25f3fc001c295938e988509"
+  # Should only be updated if the new version is listed as a stable release on the homepage
+  url "https://yarnpkg.com/downloads/1.21.1/yarn-v1.21.1.tar.gz"
+  sha256 "d1d9f4a0f16f5ed484e814afeb98f39b82d4728c6c8beaafb5abc99c02db6674"
 
   bottle :unneeded
 
-  depends_on "node" => :recommended
+  depends_on "node"
 
   conflicts_with "hadoop", :because => "both install `yarn` binaries"
 

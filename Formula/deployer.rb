@@ -1,8 +1,8 @@
 class Deployer < Formula
   desc "Deployment tool written in PHP with support for popular frameworks"
   homepage "https://deployer.org/"
-  url "https://deployer.org/releases/v6.2.0/deployer.phar"
-  sha256 "a0f331137fd28a8776cba23ace26d00bbe260a05e29dca4ee15040d914768f91"
+  url "https://deployer.org/releases/v6.7.3/deployer.phar"
+  sha256 "cd0dc83247d8cc5e65cde437b20f075c12283e80237d7bfd14f8d8d557fbf515"
 
   bottle :unneeded
 

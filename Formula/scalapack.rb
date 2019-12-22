@@ -1,31 +1,24 @@
 class Scalapack < Formula
   desc "High-performance linear algebra for distributed memory machines"
-  homepage "http://www.netlib.org/scalapack/"
-  url "http://www.netlib.org/scalapack/scalapack-2.0.2.tgz"
-  sha256 "0c74aeae690fe5ee4db7926f49c5d0bb69ce09eea75beb915e00bba07530395c"
-  revision 11
+  homepage "https://www.netlib.org/scalapack/"
+  url "https://www.netlib.org/scalapack/scalapack-2.1.0.tgz"
+  sha256 "61d9216cf81d246944720cfce96255878a3f85dec13b9351f1fa0fd6768220a6"
 
   bottle do
     cellar :any
-    sha256 "b4599a8dc3909bd6849e929ba7a552de00d31a76b727dacad65fb110088fa9d8" => :high_sierra
-    sha256 "2a028b68a4dc31c1dd5c8032d80e6678bbd89ae696aecb10956f06db6c659275" => :sierra
-    sha256 "06d91fc5df52e81396eaa62fb738239463ac069e592966b96a4a8e6a335c48fb" => :el_capitan
+    sha256 "de9051ce3d04005ff03dc2e2456ae61c3cf25365fcd4bbbfab929ec0e9f87e0d" => :catalina
+    sha256 "9d75fcf6f2b2baaa23375b0d6b274a82babab465781a6f38ed234dabc4c0fb4f" => :mojave
+    sha256 "3a7f6ff05140808a592237a2d0637302e152c84e47574b9830e81039916e8ef2" => :high_sierra
   end
 
   depends_on "cmake" => :build
   depends_on "gcc" # for gfortran
   depends_on "open-mpi"
-  depends_on "openblas" => :optional
-  depends_on "veclibfort" if build.without?("openblas")
+  depends_on "openblas"
 
   def install
-    if build.with? "openblas"
-      blas = "-L#{Formula["openblas"].opt_lib} -lopenblas"
-    else
-      blas = "-L#{Formula["veclibfort"].opt_lib} -lvecLibFort"
-    end
-
     mkdir "build" do
+      blas = "-L#{Formula["openblas"].opt_lib} -lopenblas"
       system "cmake", "..", *std_cmake_args, "-DBUILD_SHARED_LIBS=ON",
                       "-DBLAS_LIBRARIES=#{blas}", "-DLAPACK_LIBRARIES=#{blas}"
       system "make", "all"
